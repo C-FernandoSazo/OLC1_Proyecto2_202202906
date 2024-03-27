@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolas de Comando</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="barra-herramientas">
+        <button id="botonArchivo">Archivo</button>
+        <div id="menuArchivo" class="menu-archivo" style="display: none;">
+            <div id="crearArchivo">Crear archivo</div>
+            <div id="abrirArchivo">Abrir archivo</div>
+            <div id="guardarArchivo">Guardar archivo</div>
+        </div>
+        <button id="botonEjecutar">Ejecutar</button>
+        <button id="botonReportes">Reportes</button>
+        <!-- Input de archivo oculto para cargar archivos .cs -->
+        <input type="file" id="fileInput" accept=".sc" style="display: none;">
+    </div>
+    
+    
+    <div class="contenedor">
+        <div class="consola-contenedor">
+            <h2>Entrada</h2>
+            <div class="consola editable" id="consola1" contenteditable="true">
+
+            </div>
+        </div>
+        <div class="consola-contenedor">
+            <h2>Consola</h2>
+            <div class="consola" id="consola2">
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
