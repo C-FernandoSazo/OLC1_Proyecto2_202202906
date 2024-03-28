@@ -75,7 +75,7 @@ var gramatica = (function(){
 var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,7],$V1=[1,8],$V2=[1,9],$V3=[1,10],$V4=[1,11],$V5=[5,13,14,15,16,17];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"init":3,"entrada":4,"EOF":5,"sentencia":6,"declaracion_variable":7,"PUNTOYCOMA":8,"tipo":9,"ID":10,"IGUAL":11,"expresion":12,"INT":13,"DOUBLE":14,"BOOL":15,"CHAR":16,"STD":17,"ENTERO":18,"DECIMAL":19,"CADENA":20,"$accept":0,"$end":1},
+symbols_: {"error":2,"init":3,"entrada":4,"EOF":5,"sentencia":6,"declaracion_variable":7,"PUNTOYCOMA":8,"tipo":9,"ID":10,"IGUAL":11,"valor":12,"INT":13,"DOUBLE":14,"BOOL":15,"CHAR":16,"STD":17,"ENTERO":18,"DECIMAL":19,"CADENA":20,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"EOF",8:"PUNTOYCOMA",10:"ID",11:"IGUAL",13:"INT",14:"DOUBLE",15:"BOOL",16:"CHAR",17:"STD",18:"ENTERO",19:"DECIMAL",20:"CADENA"},
 productions_: [0,[3,2],[3,2],[4,2],[4,1],[6,2],[7,4],[9,1],[9,1],[9,1],[9,1],[9,1],[12,1],[12,1],[12,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
@@ -711,29 +711,29 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0://ignora espacios en blanco
 break;
-case 1://Comentario de una Linea
+case 1:   
 break;
-case 2://Coemtario Multilinea
+case 2:   
 break;
-case 3:return 19;
+case 3:return 13;
 break;
-case 4:return 18;
+case 4:return 14;
 break;
-case 5:return 13;
+case 5:return 15;
 break;
-case 6:return 14;
+case 6:return 16;
 break;
-case 7:return 15;
+case 7:return 17;
 break;
-case 8:return 16;
+case 8:return 11;
 break;
-case 9:return 17;
+case 9:return 8;
 break;
-case 10:return 11;
+case 10:return 10;    //Nombre de variables
 break;
-case 11:return 8;
+case 11:return 19;
 break;
-case 12:return 10;    //Nombre de variables
+case 12:return 18;
 break;
 case 13: cadena = ''; this.begin("string"); 
 break;
@@ -761,8 +761,8 @@ case 24:  errores.push({tipo: "Lexico", error: yy_.yytext, linea: yy_.yylloc.fir
 break;
 }
 },
-rules: [/^(?:\s+)/i,/^(?:(?=\/)\/[^\n]*\n)/i,/^(?:\/\*[\s\S]*?\*\/)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?:;)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:$)/i,/^(?:.)/i],
-conditions: {"string":{"rules":[14,15,16,17,18,19,20,21,22],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,23,24],"inclusive":true}}
+rules: [/^(?:\s+)/i,/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?:;)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:$)/i,/^(?:.)/i],
+conditions: {"MULTILINE_COMMENT":{"rules":[],"inclusive":false},"string":{"rules":[14,15,16,17,18,19,20,21,22],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,23,24],"inclusive":true}}
 });
 return lexer;
 })();

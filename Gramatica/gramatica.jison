@@ -8,17 +8,14 @@
 
 %options case-insensitive
 %x string
+%x MULTILINE_COMMENT
 
 // Tokens
 %%
 
-\s+       //ignora espacios en blanco
-/\/\/[^\n]*\n   //Comentario de una Linea
-\/\*[\s\S]*?\*\/     //Coemtario Multilinea
-
-
-[0-9]+("."[0-9]+)\b     return 'DECIMAL';
-[0-9]+\b                return 'ENTERO';
+\s+         //ignora espacios en blanco
+"//".*		{   }
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/] {   }
 
 "int"                   return 'INT';
 "double"                return 'DOUBLE';
@@ -29,7 +26,8 @@
 ";"                     return 'PUNTOYCOMA';
 
 ([a-zA-Z])[a-zA-Z0-9_]* return 'ID';    //Nombre de variables
-
+[0-9]+("."[0-9]+)\b     return 'DECIMAL';
+[0-9]+\b                return 'ENTERO';
 
 // Expresion Cadena con caracteres especiales
 ["]                     { cadena = ''; this.begin("string"); }
@@ -67,7 +65,7 @@ entrada : entrada sentencia { $1.push($2); $$=$1; }
 sentencia : declaracion_variable PUNTOYCOMA    { $$ = $2; }
 ;
 
-declaracion_variable : tipo ID IGUAL expresion { $$ = {tipo: $1, id: $2, valor: $4}; console.log("Variable declarada:", $2, "=", $4); }
+declaracion_variable : tipo ID IGUAL valor { $$ = {tipo: $1, id: $2, valor: $4}; console.log("Variable declarada:", $2, "=", $4); }
 ;
 
 tipo
@@ -78,7 +76,7 @@ tipo
     | STD { $$ = 'std::string'; }
 ;
 
-expresion
+valor
     : ENTERO { $$ = {tipo: 'entero', valor: $1}; }
     | DECIMAL { $$ = {tipo: 'decimal', valor: $1}; }
     | CADENA { $$ = {tipo: 'cadena', valor: $1}; }

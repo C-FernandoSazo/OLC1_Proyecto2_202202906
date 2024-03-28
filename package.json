@@ -2,10 +2,10 @@
   "name": "olc1_proyecto2_202202906",
   "version": "1.0.0",
   "description": "Proyecto 2 del Laboratorio de Compiladores 1",
-  "main": "Generador.js",
+  "main": "Ejecutar.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node Generador.js",
+    "start": "node Ejecutar.js",
     "jison" : "jison Gramatica\\gramatica.jison -o Gramatica\\gramatica.js"
   },
   "keywords": [],
