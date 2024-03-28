@@ -1,14 +1,13 @@
 {
-  "name": "proyecto",
+  "name": "olc1_proyecto2_202202906",
   "version": "1.0.0",
   "description": "Proyecto 2 del Laboratorio de Compiladores 1",
-  "main": "pruebas.js",
+  "main": "Generador.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node pruebas.js",
+    "start": "node Generador.js",
     "jison" : "jison Gramatica\\gramatica.jison -o Gramatica\\gramatica.js"
   },
-  
   "keywords": [],
   "author": "",
   "license": "ISC"
