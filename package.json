@@ -2,10 +2,13 @@
   "name": "proyecto",
   "version": "1.0.0",
   "description": "Proyecto 2 del Laboratorio de Compiladores 1",
-  "main": "Script.js",
+  "main": "pruebas.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node pruebas.js",
+    "jison" : "jison Gramatica\\gramatica.jison -o Gramatica\\gramatica.js"
   },
+  
   "keywords": [],
   "author": "",
   "license": "ISC"
