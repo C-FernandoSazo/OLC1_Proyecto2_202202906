@@ -7,6 +7,7 @@
 %lex // Inicia parte léxica
 
 %options case-insensitive
+%x character
 %x string
 %x MULTILINE_COMMENT
 
@@ -17,15 +18,15 @@
 "//".*		{   }
 [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/] {   }
 
-"int"                   { console.log('Token: INT'); return 'INT'; }
-"double"                { console.log('Token: DOUBLE'); return 'DOUBLE'; }
-"bool"                  { console.log('Token: BOOL'); return 'BOOL'; }
-"char"                  { console.log('Token: CHAR'); return 'CHAR'; }
-"std::string"           { console.log('Token: STD'); return 'STD'; }
-"="                     { console.log('Token: IGUAL'); return 'IGUAL'; }
-"true"                  { console.log('Token: TRUE'); return 'TRUE'; }
-"false"                 { console.log('Token: FALSE'); return 'FALSE'; }
-";"                     { console.log('Token: PUNTOYCOMA'); return 'PUNTOYCOMA'; }
+"int"                   { return 'INT'; }
+"double"                { return 'DOUBLE'; }
+"bool"                  { return 'BOOL'; }
+"char"                  { return 'CHAR'; }
+"std::string"           { return 'STD'; }
+"="                     { return 'IGUAL'; }
+"true"                  { return 'TRUE'; }
+"false"                 { return 'FALSE'; }
+";"                     { return 'PUNTOYCOMA'; }
 "+"                     return 'SUMA';
 "-"                     return 'RES';
 "*"                     return 'MULT';
@@ -46,6 +47,10 @@
 <string>"\\\'"          { cadena += "\'"; }
 <string>"\\r"           { cadena += "\r"; }
 <string>["]             { yytext = cadena; this.popState(); console.log('Token: CADENA, Valor: ' + yytext); return 'CADENA'; }
+
+[']                         { cadena = ''; this.begin("character"); }
+<character>([^'\\]|\\.)     { cadena = yytext;}
+<character>[']              { yytext = cadena; this.popState(); console.log('Token: CHAR, Valor: ' + yytext); return 'CARACTER'; }
 
 <<EOF>>                 return 'EOF';
 
@@ -119,6 +124,7 @@ valor
     : ENTERO        { $$ = nuevoValor($1, 'ENTERO', this._$.first_line, this._$.first_column+1) }
     | DECIMAL       { $$ = nuevoValor($1, 'DOUBLE', this._$.first_line, this._$.first_column+1) }
     | CADENA        { $$ = nuevoValor($1, 'CADENA', this._$.first_line, this._$.first_column+1) }
+    | CARACTER      { $$ = nuevoValor($1, 'CHAR', this._$.first_line, this._$.first_column+1) }
     | booleano      { $$ = nuevoValor($1, 'BOOL', this._$.first_line, this._$.first_column+1) }
     | op_artimetica { $$ = $1 }
 ;

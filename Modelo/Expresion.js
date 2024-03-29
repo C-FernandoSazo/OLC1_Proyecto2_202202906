@@ -1,6 +1,6 @@
 function Expresion(expresion)   {
     if(expresion.tipoValor === 'DOUBLE' || expresion.tipoValor === 'ENTERO' || expresion.tipoValor === 'CADENA'
-    || expresion.tipoValor === 'BOOL') {
+    || expresion.tipoValor === 'BOOL' || expresion.tipoValor === 'CHAR') {
         const ValorExpresion = require("../Modelo/Valor");
         return ValorExpresion(expresion);
     }
