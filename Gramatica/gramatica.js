@@ -72,19 +72,19 @@
   }
 */
 var gramatica = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,7],$V1=[1,8],$V2=[1,9],$V3=[1,10],$V4=[1,11],$V5=[5,13,14,15,16,17];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,9],$V1=[1,10],$V2=[1,11],$V3=[1,12],$V4=[1,13],$V5=[1,14],$V6=[1,15],$V7=[1,16],$V8=[1,18],$V9=[1,19],$Va=[5,14,15,16,17,18,23,24,25,27,28],$Vb=[2,21],$Vc=[1,26],$Vd=[1,27],$Ve=[1,28],$Vf=[1,29],$Vg=[8,19,20,21,22],$Vh=[8,19,20];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"init":3,"entrada":4,"EOF":5,"sentencia":6,"declaracion_variable":7,"PUNTOYCOMA":8,"tipo":9,"ID":10,"IGUAL":11,"valor":12,"INT":13,"DOUBLE":14,"BOOL":15,"CHAR":16,"STD":17,"ENTERO":18,"DECIMAL":19,"CADENA":20,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",8:"PUNTOYCOMA",10:"ID",11:"IGUAL",13:"INT",14:"DOUBLE",15:"BOOL",16:"CHAR",17:"STD",18:"ENTERO",19:"DECIMAL",20:"CADENA"},
-productions_: [0,[3,2],[3,2],[4,2],[4,1],[6,2],[7,4],[9,1],[9,1],[9,1],[9,1],[9,1],[12,1],[12,1],[12,1]],
+symbols_: {"error":2,"init":3,"entrada":4,"EOF":5,"sentencia":6,"declaracion_variable":7,"PUNTOYCOMA":8,"op_artimetica":9,"tipo":10,"ID":11,"IGUAL":12,"valor":13,"INT":14,"DOUBLE":15,"BOOL":16,"CHAR":17,"STD":18,"SUMA":19,"RES":20,"MULT":21,"DIV":22,"ENTERO":23,"DECIMAL":24,"CADENA":25,"booleano":26,"TRUE":27,"FALSE":28,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",8:"PUNTOYCOMA",11:"ID",12:"IGUAL",14:"INT",15:"DOUBLE",16:"BOOL",17:"CHAR",18:"STD",19:"SUMA",20:"RES",21:"MULT",22:"DIV",23:"ENTERO",24:"DECIMAL",25:"CADENA",27:"TRUE",28:"FALSE"},
+productions_: [0,[3,2],[3,2],[4,2],[4,1],[6,2],[6,2],[7,4],[10,1],[10,1],[10,1],[10,1],[10,1],[9,3],[9,3],[9,3],[9,3],[13,1],[13,1],[13,1],[13,1],[13,1],[26,1],[26,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- console.log("Entrada procesada con éxito."); return $$[$0-1]; 
+ console.log("Entrada procesada con éxito."); retorno = { instrucciones: $$[$0-1], errores: errores }; errores = []; return retorno; 
 break;
 case 2:
  console.log("Error al procesar la entrada."); 
@@ -95,40 +95,64 @@ break;
 case 4:
  this.$=[$$[$0]]; 
 break;
-case 5:
- this.$ = $$[$0]; 
-break;
-case 6:
- this.$ = {tipo: $$[$0-3], id: $$[$0-2], valor: $$[$0]}; console.log("Variable declarada:", $$[$0-2], "=", $$[$0]); 
+case 5: case 6:
+ this.$ = $$[$0-1]; 
 break;
 case 7:
- this.$ = 'int'; 
+ this.$ = {tipo: $$[$0-3], id: $$[$0-2], valor: $$[$0]}; console.log("Variable declarada:", $$[$0-2], "=", $$[$0]); 
 break;
 case 8:
- this.$ = 'double'; 
+ this.$ = 'ENTERO'; 
 break;
 case 9:
- this.$ = 'bool'; 
+ this.$ = 'DOUBLE'; 
 break;
 case 10:
- this.$ = 'char'; 
+ this.$ = 'BOOL'; 
 break;
 case 11:
- this.$ = 'std::string'; 
+ this.$ = 'CHAR'; 
 break;
 case 12:
- this.$ = {tipo: 'entero', valor: $$[$0]}; 
+ this.$ = 'CADENA'; 
 break;
 case 13:
- this.$ = {tipo: 'decimal', valor: $$[$0]}; 
+ this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'SUMA', this._$.first_line, this._$.first_column+1) 
 break;
 case 14:
- this.$ = {tipo: 'cadena', valor: $$[$0]}; 
+ this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'RESTA', this._$.first_line, this._$.first_column+1) 
+break;
+case 15:
+ this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MULT', this._$.first_line, this._$.first_column+1) 
+break;
+case 16:
+ this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'DIV', this._$.first_line, this._$.first_column+1) 
+break;
+case 17:
+ this.$ = nuevoValor($$[$0], 'ENTERO', this._$.first_line, this._$.first_column+1) 
+break;
+case 18:
+ this.$ = nuevoValor($$[$0], 'DOUBLE', this._$.first_line, this._$.first_column+1) 
+break;
+case 19:
+ this.$ = nuevoValor($$[$0], 'CADENA', this._$.first_line, this._$.first_column+1) 
+break;
+case 20:
+ this.$ = nuevoValor($$[$0], 'BOOL', this._$.first_line, this._$.first_column+1) 
+break;
+case 21:
+ this.$ = $$[$0] 
+break;
+case 22:
+ this.$ = true;   
+break;
+case 23:
+ this.$ = false;  
 break;
 }
 },
-table: [{2:[1,3],3:1,4:2,6:4,7:5,9:6,13:$V0,14:$V1,15:$V2,16:$V3,17:$V4},{1:[3]},{5:[1,12],6:13,7:5,9:6,13:$V0,14:$V1,15:$V2,16:$V3,17:$V4},{5:[1,14]},o($V5,[2,4]),{8:[1,15]},{10:[1,16]},{10:[2,7]},{10:[2,8]},{10:[2,9]},{10:[2,10]},{10:[2,11]},{1:[2,1]},o($V5,[2,3]),{1:[2,2]},o($V5,[2,5]),{11:[1,17]},{12:18,18:[1,19],19:[1,20],20:[1,21]},{8:[2,6]},{8:[2,12]},{8:[2,13]},{8:[2,14]}],
-defaultActions: {7:[2,7],8:[2,8],9:[2,9],10:[2,10],11:[2,11],12:[2,1],14:[2,2],18:[2,6],19:[2,12],20:[2,13],21:[2,14]},
+table: [{2:[1,3],3:1,4:2,6:4,7:5,9:6,10:7,13:8,14:$V0,15:$V1,16:$V2,17:$V3,18:$V4,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{1:[3]},{5:[1,20],6:21,7:5,9:6,10:7,13:8,14:$V0,15:$V1,16:$V2,17:$V3,18:$V4,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{5:[1,22]},o($Va,[2,4]),{8:[1,23]},o([19,20,21,22],$Vb,{8:[1,24]}),{11:[1,25]},{19:$Vc,20:$Vd,21:$Ve,22:$Vf},{11:[2,8]},{11:[2,9]},{11:[2,10]},{11:[2,11]},{11:[2,12]},o($Vg,[2,17]),o($Vg,[2,18]),o($Vg,[2,19]),o($Vg,[2,20]),o($Vg,[2,22]),o($Vg,[2,23]),{1:[2,1]},o($Va,[2,3]),{1:[2,2]},o($Va,[2,5]),o($Va,[2,6]),{12:[1,30]},{9:32,13:31,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{9:32,13:33,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{9:32,13:34,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{9:32,13:35,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},{9:32,13:36,23:$V5,24:$V6,25:$V7,26:17,27:$V8,28:$V9},o($Vh,[2,13],{21:$Ve,22:$Vf}),o($Vg,$Vb),o($Vh,[2,14],{21:$Ve,22:$Vf}),o($Vg,[2,15]),o($Vg,[2,16]),{8:[2,7],19:$Vc,20:$Vd,21:$Ve,22:$Vf}],
+defaultActions: {9:[2,8],10:[2,9],11:[2,10],12:[2,11],13:[2,12],20:[2,1],22:[2,2]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -381,6 +405,28 @@ _handle_error:
         var cadena = '';
         var errores = [];
         var tokens = [];
+
+    function nuevoValor(valor, tipoValor, linea, columna) {
+        let obj = {
+            valor: valor,
+            tipoValor: tipoValor,
+            linea: linea,
+            columna: columna
+        }
+        return obj;
+    }
+
+    function nuevaOpBinaria(valor1, valor2, tipoOperacion, linea, columna) {
+        let obj = {
+            valor1: valor1,
+            valor2: valor2,
+            tipoOperacion: tipoOperacion,
+            linea: linea,
+            columna: columna
+        }
+        return obj;
+    }
+
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({
@@ -715,54 +761,66 @@ case 1:
 break;
 case 2:   
 break;
-case 3:return 13;
+case 3: console.log('Token: INT'); return 14; 
 break;
-case 4:return 14;
+case 4: console.log('Token: DOUBLE'); return 15; 
 break;
-case 5:return 15;
+case 5: console.log('Token: BOOL'); return 16; 
 break;
-case 6:return 16;
+case 6: console.log('Token: CHAR'); return 17; 
 break;
-case 7:return 17;
+case 7: console.log('Token: STD'); return 18; 
 break;
-case 8:return 11;
+case 8: console.log('Token: IGUAL'); return 12; 
 break;
-case 9:return 8;
+case 9: console.log('Token: TRUE'); return 27; 
 break;
-case 10:return 10;    //Nombre de variables
+case 10: console.log('Token: FALSE'); return 28; 
 break;
-case 11:return 19;
+case 11: console.log('Token: PUNTOYCOMA'); return 8; 
 break;
-case 12:return 18;
+case 12:return 19;
 break;
-case 13: cadena = ''; this.begin("string"); 
+case 13:return 20;
 break;
-case 14: cadena += yy_.yytext; 
+case 14:return 21;
 break;
-case 15: cadena += "\""; 
+case 15:return 22;
 break;
-case 16: cadena += "\n"; 
+case 16: console.log('Token: ID, Valor: ' + yy_.yytext); return 11; 
 break;
-case 17: cadena += " "; 
+case 17: console.log('Token: DECIMAL, Valor: ' + yy_.yytext); return 24; 
 break;
-case 18: cadena += "\t"; 
+case 18: console.log('Token: ENTERO, Valor: ' + yy_.yytext); return 23; 
 break;
-case 19: cadena += "\\"; 
+case 19: cadena = ''; this.begin("string"); 
 break;
-case 20: cadena += "\'"; 
+case 20: cadena += yy_.yytext; 
 break;
-case 21: cadena += "\r"; 
+case 21: cadena += "\""; 
 break;
-case 22: yy_.yytext = cadena; this.popState(); return 'cadena'; 
+case 22: cadena += "\n"; 
 break;
-case 23:return 5;
+case 23: cadena += " "; 
 break;
-case 24:  errores.push({tipo: "Lexico", error: yy_.yytext, linea: yy_.yylloc.first_line, columna : yy_.yylloc.first_column+1})    
+case 24: cadena += "\t"; 
+break;
+case 25: cadena += "\\"; 
+break;
+case 26: cadena += "\'"; 
+break;
+case 27: cadena += "\r"; 
+break;
+case 28: yy_.yytext = cadena; this.popState(); console.log('Token: CADENA, Valor: ' + yy_.yytext); return 25; 
+break;
+case 29:return 5;
+break;
+case 30:  errores.push({tipo: "Lexico", error: yy_.yytext, linea: yy_.yylloc.first_line, columna : yy_.yylloc.first_column+1})    
 break;
 }
 },
-rules: [/^(?:\s+)/i,/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?:;)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:$)/i,/^(?:.)/i],
-conditions: {"MULTILINE_COMMENT":{"rules":[],"inclusive":false},"string":{"rules":[14,15,16,17,18,19,20,21,22],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,23,24],"inclusive":true}}
+rules: [/^(?:\s+)/i,/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?:true\b)/i,/^(?:false\b)/i,/^(?:;)/i,/^(?:\+)/i,/^(?:-)/i,/^(?:\*)/i,/^(?:\/)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:$)/i,/^(?:.)/i],
+conditions: {"MULTILINE_COMMENT":{"rules":[],"inclusive":false},"string":{"rules":[20,21,22,23,24,25,26,27,28],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,29,30],"inclusive":true}}
 });
 return lexer;
 })();
