@@ -18,6 +18,10 @@
 "//".*		{   }
 [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/] {   }
 
+"=="                    { console.log("ENTRO A DOBLE IGUAL"); return 'ORIGUAL'; }
+"!="                    { return 'ORDIF'; }
+"<="                    { return 'ORMENORIGUAL'; }
+">="                    { return 'ORMAYORIGUAL'; }
 "int"                   { return 'INT'; }
 "double"                { return 'DOUBLE'; }
 "bool"                  { return 'BOOL'; }
@@ -26,11 +30,18 @@
 "="                     { return 'IGUAL'; }
 "true"                  { return 'TRUE'; }
 "false"                 { return 'FALSE'; }
+","                     { return 'COMA'; }
 ";"                     { return 'PUNTOYCOMA'; }
-"+"                     return 'SUMA';
-"-"                     return 'RES';
-"*"                     return 'MULT';
-"/"                     return 'DIV';
+"+"                     { return 'SUMA'; }
+"-"                     { return 'RES'; }
+"*"                     { return 'MULT'; }
+"/"                     { return 'DIV'; }
+"%"                     { return 'MOD'; }
+"pow"                   { return 'POW'; }
+"("                     { return 'OPENPAREN'; }
+")"                     { return 'CLOSEPAREN'; }
+"<"                     { return 'ORMENOR'; }
+">"                     { return 'ORMAYOR'; }
 
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
 [0-9]+("."[0-9]+)\b     { console.log('Token: DECIMAL, Valor: ' + yytext); return 'DECIMAL'; }
@@ -60,6 +71,8 @@
 /lex
 
 %{
+    var tablaSimbolos = {};
+
     function nuevoValor(valor, tipoValor, linea, columna) {
         let obj = {
             valor: valor,
@@ -81,11 +94,61 @@
         return obj;
     }
 
+    class TablaSimbolos {
+        constructor() {
+            this.tabla = {};
+        }
+
+        agregarVariable(tipo, ids, valor = 0, linea, columna) {
+            let declaraciones = [];
+            if(valor === 0){
+                if(tipo === 'DOUBLE'){
+                    valor = 0.0;
+                } else if(tipo === 'BOOL') {
+                    valor = true;
+                } else if(tipo === 'CHAR') {
+                    valor = '0';
+                } else if(tipo === 'CADENA') {
+                    valor = "";
+                }
+            }
+            ids.forEach(id => {
+                if (this.tabla[id] === undefined) {
+                    this.tabla[id] = { tipo: tipo, valor: valor };
+                    declaraciones.push({ tipo: 'declaracion', id, valor, linea, columna });
+                } else {
+                    console.error(`La variable ${id} ya está declarada.`);
+                }
+            });
+            return declaraciones;
+        }
+
+        asignarValor(id, valor, linea, columna) {
+            if (this.tabla[id] !== undefined) {
+                this.tabla[id].valor = valor;
+                return { tipo: 'asignacion', id, valor, linea, columna };
+            } else {
+                console.error(`La variable ${id} no está declarada.`);
+            }
+        }
+
+        obtenerValor(id) {
+        if (this.tabla[id] !== undefined) {
+            return this.tabla[id].valor;
+        } else {
+            console.error(`La variable ${id} no está declarada.`);
+            return undefined;
+        }
+    }
+    }
+
+    var tablaSimbolos = new TablaSimbolos();
 %}
 
 //Presedencia
 %left 'SUMA' 'RES'
 %left 'MULT' 'DIV'
+%left 'POW' 'MOD'
 
 %start init 
 
@@ -101,9 +164,17 @@ entrada : entrada sentencia { $1.push($2); $$=$1; }
 
 sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
         | op_artimetica PUNTOYCOMA             { $$ = $1; }
+        | op_relacional PUNTOYCOMA             { $$ = $1; }
 ;
 
-declaracion_variable : tipo ID IGUAL valor { $$ = {tipo: $1, id: $2, valor: $4}; console.log("Variable declarada:", $2, "=", $4); }
+declaracion_variable
+    : tipo lista_ids                          { $$ = tablaSimbolos.agregarVariable($1, $2, this._$.first_line, this._$.first_column); }
+    | tipo lista_ids IGUAL valor              { $$ = tablaSimbolos.agregarVariable($1, $2, $4, this._$.first_line, this._$.first_column); }
+;
+
+lista_ids
+    : lista_ids COMA ID                       { $1.push($3); $$ = $1; }
+    | ID                                      { $$ = [$1]; }
 ;
 
 tipo
@@ -118,6 +189,16 @@ op_artimetica : valor SUMA valor    { $$ = nuevaOpBinaria($1, $3, 'SUMA', this._
             | valor RES valor       { $$ = nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1) }
             | valor MULT valor      { $$ = nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1) }
             | valor DIV valor       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
+            | valor MOD valor       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
+            | POW OPENPAREN valor COMA valor CLOSEPAREN     { $$ = nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1) }
+;
+
+op_relacional: valor ORIGUAL valor      { $$ = nuevaOpBinaria($1, $3, 'IGUALACION', this._$.first_line, this._$.first_column+1) } 
+            | valor ORDIF valor         { $$ = nuevaOpBinaria($1, $3, 'DIF', this._$.first_line, this._$.first_column+1) } 
+            | valor ORMENOR valor       { $$ = nuevaOpBinaria($1, $3, 'MENORQUE', this._$.first_line, this._$.first_column+1) } 
+            | valor ORMENORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
+            | valor ORMAYOR valor       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
+            | valor ORMAYORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
 ;
 
 valor
@@ -127,6 +208,7 @@ valor
     | CARACTER      { $$ = nuevoValor($1, 'CHAR', this._$.first_line, this._$.first_column+1) }
     | booleano      { $$ = nuevoValor($1, 'BOOL', this._$.first_line, this._$.first_column+1) }
     | op_artimetica { $$ = $1 }
+    | ID            { var variable = tablaSimbolos.obtenerValor($1); console.log(variable); $$ = nuevoValor(variable.valor, variable.tipoValor, this._$.first_line, this._$.first_column+1)}
 ;
 
 booleano : TRUE     { $$ = true;   }
