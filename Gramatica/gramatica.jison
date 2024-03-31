@@ -22,12 +22,16 @@
 "!="                    { return 'ORDIF'; }
 "<="                    { return 'ORMENORIGUAL'; }
 ">="                    { return 'ORMAYORIGUAL'; }
+"||"                    { return 'OR'; }
+"&&"                    { return 'AND'; }
+"!"                     { return 'NOT'; }
 "int"                   { return 'INT'; }
 "double"                { return 'DOUBLE'; }
 "bool"                  { return 'BOOL'; }
 "char"                  { return 'CHAR'; }
 "std::string"           { return 'STD'; }
 "="                     { return 'IGUAL'; }
+":"                     { return 'PUNTOS' }
 "true"                  { return 'TRUE'; }
 "false"                 { return 'FALSE'; }
 ","                     { return 'COMA'; }
@@ -42,6 +46,7 @@
 ")"                     { return 'CLOSEPAREN'; }
 "<"                     { return 'ORMENOR'; }
 ">"                     { return 'ORMAYOR'; }
+"?"                     { return 'INCOGNITA'; }
 
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
 [0-9]+("."[0-9]+)\b     { console.log('Token: DECIMAL, Valor: ' + yytext); return 'DECIMAL'; }
@@ -87,6 +92,18 @@
         let obj = {
             valor1: valor1,
             valor2: valor2,
+            tipoOperacion: tipoOperacion,
+            linea: linea,
+            columna: columna
+        }
+        return obj;
+    }
+
+    function nuevaOpTernaria(condicion, expresion1, expresion2, tipoOperacion, linea, columna) {
+        let obj = {
+            condicion: condicion,
+            expresion1: expresion1,
+            expresion2: expresion2,
             tipoOperacion: tipoOperacion,
             linea: linea,
             columna: columna
@@ -199,6 +216,7 @@ op_relacional: valor ORIGUAL valor      { $$ = nuevaOpBinaria($1, $3, 'IGUALACIO
             | valor ORMENORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
             | valor ORMAYOR valor       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
             | valor ORMAYORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
+            | op_relacional INCOGNITA valor PUNTOS valor  { $$ = nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1) }
 ;
 
 valor
@@ -208,7 +226,7 @@ valor
     | CARACTER      { $$ = nuevoValor($1, 'CHAR', this._$.first_line, this._$.first_column+1) }
     | booleano      { $$ = nuevoValor($1, 'BOOL', this._$.first_line, this._$.first_column+1) }
     | op_artimetica { $$ = $1 }
-    | ID            { var variable = tablaSimbolos.obtenerValor($1); console.log(variable); $$ = nuevoValor(variable.valor, variable.tipoValor, this._$.first_line, this._$.first_column+1)}
+    | ID            { var variable = tablaSimbolos.obtenerValor($1); console.log(variable); $$ = nuevoValor(variable.valor, variable.tipoValor, variable.linea, variable.columna)}
 ;
 
 booleano : TRUE     { $$ = true;   }

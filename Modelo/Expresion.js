@@ -15,6 +15,12 @@ function Expresion(expresion)   {
         const OpRelacional = require("../Util/Comparacion");
         return OpRelacional(expresion)
     }
+    else if(expresion.tipoOperacion === 'IFSHORT'){
+        console.log("ENTRO A IF SHORT");
+        console.log(expresion);
+        const OpTernario = require("../Util/Comparacion")
+        return OpTernario(expresion)
+    }
     else return undefined;
 }
 

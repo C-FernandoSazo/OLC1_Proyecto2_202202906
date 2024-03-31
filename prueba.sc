@@ -12,3 +12,5 @@ nea */
 
 num + 1;
 numero + 2.3;
+
+num == 5 ? true : false;
