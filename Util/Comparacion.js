@@ -27,6 +27,10 @@ function OpRelacional(expresion){
     }
 }
 
+function OpLogico(expresion) {
+    
+}
+
 function OpTernario(expresion){
     let bool = OpRelacional(expresion.condicion);
     if(bool) {
