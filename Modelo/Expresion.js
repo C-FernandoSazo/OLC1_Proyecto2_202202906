@@ -25,9 +25,9 @@ function Expresion(expresion)   {
         return OpLogic(expresion);
     }
     else if(expresion.tipoOperacion === 'sent_if'){
-        
+        const IfSentence = require('../Util/Control/IfSentence')
+        return IfSentence(expresion);
     }  
-    else return undefined;
 }
 
 module.exports = Expresion;

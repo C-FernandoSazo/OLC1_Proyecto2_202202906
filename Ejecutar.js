@@ -1,22 +1,19 @@
-const fs = require('fs');
+const express = require('express')
+const app = express();
+let cors = require('cors');
 const parser = require("./Gramatica/gramatica.js");
 const Procesador = require("./Gramatica/Procesador.js");
 const Reportes = require('./Util/Reportes.js');
 
-function main(){
-    try {
-        let reportes = new Reportes();
-        const entrada = fs.readFileSync('prueba.sc','utf8')
-        const result = parser.parse(entrada)
-        console.log(result)
-        var salida = Procesador(result.instrucciones)
-        console.log(salida)
-        reportes.generarTablaErrores(result.errores)
-        console.log("Analisis terminado")
-        console.log(result.texto)
-    } catch(error) {
-        console.error(error)
-    }
-}
+app.use(cors());
+app.use(express.json());
 
-main()
+app.post('/compile', (req, res) => {
+    let reportes = new Reportes();
+    var input = req.body.input;
+    var result = parser.parse(input);
+    var salida = Procesador(result.instrucciones);
+    res.send({ output: salida });
+    });
+
+app.listen(3080, () => console.log('Servidor corriendo en puerto 3080'));

@@ -45,14 +45,8 @@ bandera && "hola"=="hol" || false;
 bandera && "hola"=="hola" || false;
 bandera && "hola"=="hola" && false;
 
- if(1==1){
- inta=10;
- intb=20;
- }
-
   if(1==1){
- inta=10;
- intb=20;
+    cout<<"Hola IF";
  } else {
     cout<<"HOLA EN ELSE";
  }
