@@ -1,6 +1,14 @@
 
 double num, numero = 1.3;
 
+int numaa = 5;
+
+bool bandera = true;
+
+int edad = (int) 18.6;
+
+cout<<numaa<<endl;
+
 // Comentario
 
 std::string cadena = "Oracion de la cadena \\ Hola \"";
@@ -11,6 +19,7 @@ li
 nea */
 &
 ¡
+
 num + 1;
 nume + 2.3;
 int entero = 1;
@@ -25,4 +34,25 @@ int entero = 1;
 
 pow(5,3);
 
+5 == 5;
+num != 3;
+
 num == 5 ? true : false;
+5+5;
+bandera || 5<2;
+
+bandera && "hola"=="hol" || false;
+bandera && "hola"=="hola" || false;
+bandera && "hola"=="hola" && false;
+
+ if(1==1){
+ inta=10;
+ intb=20;
+ }
+
+  if(1==1){
+ inta=10;
+ intb=20;
+ } else {
+    cout<<"HOLA EN ELSE";
+ }

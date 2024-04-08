@@ -41,6 +41,7 @@ function Aritmetica(operacion) {
             if (operacion.valor1.tipoValor === 'CHAR' || operacion.valor2.tipoValor === 'CHAR') {
                 return undefined
             } else {
+                console.log("REGRESO")
                 return Math.pow(n1,n2);
             }
         case 'MOD':

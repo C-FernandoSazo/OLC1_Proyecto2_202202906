@@ -55,6 +55,8 @@
 "?"                     { return 'INCOGNITA'; }
 "cout"                  { return 'COUT'; }
 "endl"                  { return 'ENDL'; }
+"if"                    { return 'IF'; }
+"else"                  { return 'ELSE'; }
 
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
 [0-9]+("."[0-9]+)\b     { console.log('Token: DECIMAL, Valor: ' + yytext); return 'DECIMAL'; }
@@ -119,15 +121,57 @@
         return obj;
     }
 
+    function sentenciaIf(condicion, bloque, elseblock=null) {
+        let obj = {
+            condicion: condicion,
+            tipoOperacion: 'sent_if',
+            bloque: bloque,
+            elseblock: elseblock
+        }
+        return obj
+    }
+
+    function casteo(tipo, valor) {
+        if (tipo === 'DOUBLE' && valor.tipoValor === 'ENTERO'){
+            valor.valor = valor.valor + 0.0
+            return valor;
+        }
+        else if (tipo === 'ENTERO' && valor.tipoValor === 'DOUBLE'){
+            valor.valor = Math.round(valor.valor);
+            return valor;
+        }
+        else if (tipo === 'STRING' && typeof valor == 'number'){
+            valor.valor.toString();
+            return valor;
+        }
+        else if (tipo === 'CHAR' && valor.tipoValor === 'ENTERO'){
+            valor.valor = String.fromCharCode(valor.valor)
+            return valor
+        }
+        else if (tipo === 'ENTERO' && valor.tipoValor === 'CHAR'){
+            valor.valor = valor.valor.charCodeAt(0);
+            return valor
+        }
+        else if (tipo === 'DOUBLE' && valor.tipoValor === 'CHAR'){
+            valor.valor = valor.valor.charCodeAt(0) + 0.0;
+            return valor
+        }
+        else {
+            return undefined;
+        }
+    }
+
     class TablaSimbolos {
         constructor() {
             this.tabla = {};
         }
 
-        agregarVariable(tipo, ids, valor = 0, linea, columna) {
+        agregarVariable(tipo, ids, linea, columna, valor = null) {
             let declaraciones = [];
-            if(valor === 0){
-                if(tipo === 'DOUBLE'){
+            if(valor === null){
+                if(tipo === 'ENTERO'){
+                    valor = 0;
+                } else if(tipo === 'DOUBLE'){
                     valor = 0.0;
                 } else if(tipo === 'BOOL') {
                     valor = true;
@@ -179,15 +223,20 @@
                 return undefined;
             }
         }   
+
+        obtenerTabla() {
+            return this.tabla;
+        }
     }
 
     var tablaSimbolos = new TablaSimbolos();
 %}
 
 //Presedencia
+%right 'NOT'
 %left 'OR'
 %left 'AND'
-%right 'NOT'
+%nonassoc INCOGNITA
 %left 'ORIGUAL', 'ORDIF', 'ORMENOR', 'ORMENORIGUAL', 'ORMAYOR', 'ORMAYORIGUAL'
 %left 'SUMA' 'RES'
 %left 'MULT' 'DIV'
@@ -201,7 +250,8 @@
 
 %%
 
-init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1, errores: errores, texto: textoConsola }; errores = []; textoConsola = "Salida:\n"; return retorno; }
+init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1, errores: errores, texto: textoConsola, tablaS: tablaSimbolos.obtenerTabla()  }; 
+                        errores = []; textoConsola = "Salida:\n"; return retorno; }
 ;    
 
 entrada : entrada sentencia { $1.push($2); $$=$1; }
@@ -209,16 +259,16 @@ entrada : entrada sentencia { $1.push($2); $$=$1; }
 ;
 
 sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
-        | op_artimetica PUNTOYCOMA             { $$ = $1; }
-        | op_relacional PUNTOYCOMA             { $$ = $1; }
-        | fun_cout PUNTOYCOMA
+        | expresion PUNTOYCOMA              { $$ = $1; }
+        | sent_if                           { $$ = $1; }
+        | print PUNTOYCOMA
         | error PUNTOYCOMA    { console.log("Error al procesar la entrada."); 
     errores.push({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
 ;
 
 declaracion_variable
     : tipo lista_ids                          { $$ = tablaSimbolos.agregarVariable($1, $2, this._$.first_line, this._$.first_column); }
-    | tipo lista_ids IGUAL valor              { $$ = tablaSimbolos.agregarVariable($1, $2, $4, this._$.first_line, this._$.first_column); }
+    | tipo lista_ids IGUAL expresion              { $$ = tablaSimbolos.agregarVariable($1, $2, this._$.first_line, this._$.first_column, $4); }
 ;
 
 lista_ids
@@ -234,27 +284,48 @@ tipo
     | STD { $$ = 'CADENA'; }
 ;
 
-op_artimetica : valor SUMA valor    { $$ = nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1) }
-            | valor RES valor       { $$ = nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1) }
-            | valor MULT valor      { $$ = nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1) }
-            | valor DIV valor       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
-            | valor MOD valor       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
-            | POW OPENPAREN valor COMA valor CLOSEPAREN     { $$ = nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1) }
+expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1) }
+            | expresion RES expresion       { $$ = nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1) }
+            | expresion MULT expresion      { $$ = nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1) }
+            | expresion DIV expresion       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
+            | expresion MOD expresion       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
+            | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { $$ = nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1) }
             | ID INCREASE      { $$ = tablaSimbolos.increasedecreaseValor($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
             | ID DECREASE     { $$ = tablaSimbolos.increasedecreaseValor($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
+            | OPENPAREN tipo CLOSEPAREN expresion  { console.log('QUE PASOOOO'); $$ = casteo($2,$4); }
+            | op_relacional     { $$ = $1; }
+            | op_logicos        { $$ = $1; }
+            | valor             { $$ = $1; }
 ;
 
-op_relacional: valor ORIGUAL valor      { $$ = nuevaOpBinaria($1, $3, 'IGUALACION', this._$.first_line, this._$.first_column+1) } 
-            | valor ORDIF valor         { $$ = nuevaOpBinaria($1, $3, 'DIF', this._$.first_line, this._$.first_column+1) } 
-            | valor ORMENOR valor       { $$ = nuevaOpBinaria($1, $3, 'MENORQUE', this._$.first_line, this._$.first_column+1) } 
-            | valor ORMENORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
-            | valor ORMAYOR valor       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
-            | valor ORMAYORIGUAL valor  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
-            | op_relacional INCOGNITA valor PUNTOS valor  { $$ = nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1) }
+op_relacional
+            : expresion ORIGUAL expresion       { $$ = nuevaOpBinaria($1, $3, 'IGUALACION', this._$.first_line, this._$.first_column+1) } 
+            | expresion ORDIF expresion         { $$ = nuevaOpBinaria($1, $3, 'DIF', this._$.first_line, this._$.first_column+1) } 
+            | expresion ORMENOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MENORQUE', this._$.first_line, this._$.first_column+1) } 
+            | expresion ORMENORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
+            | expresion ORMAYOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
+            | expresion ORMAYORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
+            | expresion INCOGNITA expresion PUNTOS expresion  { $$ = nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1) }
 ;
 
-fun_cout: COUT ASIGN valor              { textoConsola += $3.valor; }
-        | COUT ASIGN valor ASIGN ENDL   { textoConsola += $3.valor+'\n'; }
+op_logicos
+        : expresion AND expresion   { $$ = nuevaOpBinaria($1, $3, 'AND', this._$.first_line, this._$.first_column+1) } 
+        | expresion OR expresion    { $$ = nuevaOpBinaria($1, $3, 'OR', this._$.first_line, this._$.first_column+1) } 
+        | NOT expresion             { $$ = nuevaOpBinaria($2, null, 'NOT', this._$.first_line, this._$.first_column+1) }
+;
+
+print:  COUT ASIGN expresion             { textoConsola += $3.valor; }
+        | COUT ASIGN expresion ASIGN ENDL   { textoConsola += $3.valor+'\n'; }
+;
+
+//Bloque de instrucciones
+bloque: OPENLLAVE entrada CLOSELLAVE    { $$ = $2; }
+        | OPENLLAVE CLOSELLAVE          { $$ = []; }
+;
+
+sent_if: IF OPENPAREN expresion CLOSEPAREN bloque                   { $$ = sentenciaIf($3, $5) }
+        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE bloque      { $$ = sentenciaIf($3, $5, $7) }
+        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE sent_if     { $$ = sentenciaIf($3, $5, $7) }
 ;
 
 valor
@@ -263,7 +334,6 @@ valor
     | CADENA        { $$ = nuevoValor($1, 'CADENA', this._$.first_line, this._$.first_column+1) }
     | CARACTER      { $$ = nuevoValor($1, 'CHAR', this._$.first_line, this._$.first_column+1) }
     | booleano      { $$ = nuevoValor($1, 'BOOL', this._$.first_line, this._$.first_column+1) }
-    | op_artimetica { $$ = $1 }
     | ID {
         try {
             var variable = tablaSimbolos.obtenerValor($1);

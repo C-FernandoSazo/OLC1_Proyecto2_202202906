@@ -1,4 +1,4 @@
-const Expresion = require("../Modelo/Expresion");
+const Expresion = require('C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Modelo/Expresion')
 
 function OpRelacional(expresion){
     let n1 = Expresion(expresion.valor1)
@@ -27,18 +27,4 @@ function OpRelacional(expresion){
     }
 }
 
-function OpLogico(expresion) {
-    
-}
-
-function OpTernario(expresion){
-    let bool = OpRelacional(expresion.condicion);
-    if(bool) {
-        return expresion.expresion1.valor;
-    } else {
-        return expresion.expresion2.valor;
-    }
-}
-
 module.exports = OpRelacional;
-module.exports = OpTernario;
