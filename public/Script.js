@@ -68,7 +68,7 @@ document.getElementById("botonEjecutar").addEventListener("click", function() {
     })
     .then(response => response.json())
     .then(data => {
-        // Aquí puedes manejar la respuesta del servidor
+        // Respuesta del servidor
         document.getElementById('consola2').innerText = data.output;  // Mostrar la salida en la consola2
     })
     .catch(error => {
