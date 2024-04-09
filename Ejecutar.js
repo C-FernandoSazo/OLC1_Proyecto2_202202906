@@ -16,22 +16,19 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'menu.html'));
 });
 
+// Post recibir el texto de la consola y analizarlo con el parser
 app.post('/compile', (req, res) => {
     let reportes = new Reportes();
     var input = req.body.input;
     var result = parser.parse(input);
+    console.log("Instrucciones: \n", result.instrucciones)
+    console.log(result.tablaS);
     var salida = Procesador(result.instrucciones);
-    res.send({ output: salida });
+    console.log("SALIDA: \n", salida)
+    res.send({ output: result.texto });
     });
 
 // Se ejecutara cuando el servidor este activo
 app.listen(3080, () => {
     console.log('Servidor corriendo en http://localhost:3080');
-    exec('start http://localhost:3080', (error) => {
-        if (error) {
-            console.error(`Error al abrir el navegador: ${error}`);
-            return;
-        }
-        console.log('El navegador se ha abierto con éxito.');
-    });
 });

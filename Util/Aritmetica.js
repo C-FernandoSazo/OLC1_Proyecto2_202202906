@@ -4,22 +4,26 @@ function Aritmetica(operacion) {
     let n1 = Expresion(operacion.valor1)
     let n2 = operacion.valor2 ? Expresion(operacion.valor2) : 0;
     
-    if (operacion.valor1.tipoValor === 'CHAR' && typeof n2 === 'number') {
-        n1 = n1.charCodeAt(0);
+    if (n1.tipoValor === 'CHAR' && typeof n2.valor === 'number') {
+        n1.valor = n1.valor.charCodeAt(0);
     }
-    if (operacion.valor2.tipoValor === 'CHAR' && typeof n1 === 'number') {
-        n2 = n2.charCodeAt(0);
+    if (n2.tipoValor === 'CHAR' && typeof n1.valor === 'number') {
+        n2.valor = n2.valor.charCodeAt(0);
     }
 
     switch (operacion.tipoOperacion) {
         case 'SUMA':
-            if ((typeof n1 === 'boolean' && typeof n2 === 'boolean') ||
-                (typeof n1 === 'boolean' && operacion.valor2.tipoValor === 'CHAR') ||
-                (operacion.valor1.tipoValor === 'CHAR' && typeof n2 === 'boolean'))  {
+            if ((typeof n1.valor === 'boolean' && typeof n2.valor === 'boolean') ||
+                (typeof n1.valor === 'boolean' && n2.tipoValor === 'CHAR') ||
+                (n1.tipoValor === 'CHAR' && typeof n2.valor === 'boolean'))  {
                     console.log('Operacion no permitida ', operacion);
                     return undefined
             } else {
-                return n1 + n2;
+                let obj = {
+                    valor: n1.valor+n2.valor,
+                    tipoValor: Combinaciones(n1.tipoValor, n2.tipoValor)
+                }
+                return obj
             }
         case 'RESTA':
             if (operacion.valor1.tipoValor === 'CADENA' || operacion.valor2.tipoValor === 'CADENA') {
@@ -55,5 +59,51 @@ function Aritmetica(operacion) {
             return undefined
     }
 }
+
+
+function Combinaciones(tipo1, tipo2){
+    // Combinaciones para la operación suma.
+    const combinaciones = {
+        'ENTERO': {
+            'ENTERO': 'ENTERO',
+            'DOUBLE': 'DOUBLE',
+            'BOOL': 'ENTERO',
+            'CHAR': 'ENTERO',
+            'CADENA': 'CADENA'
+        },
+        'DOUBLE': {
+            'ENTERO': 'DOUBLE',
+            'DOUBLE': 'DOUBLE',
+            'BOOL': 'DOUBLE',
+            'CHAR': 'DOUBLE',
+            'CADENA': 'CADENA'
+        },
+        'BOOL': {
+            'ENTERO': 'ENTERO',
+            'DOUBLE': 'DOUBLE',
+            // 'BOOL': No permitido, se manejará en la función Aritmetica.
+            'CHAR': 'CADENA',  // Asumiendo que cualquier operación con cadena convierte el resultado en cadena.
+            'CADENA': 'CADENA'
+        },
+        'CHAR': {
+            'ENTERO': 'ENTERO',
+            'DOUBLE': 'DOUBLE',
+            'BOOL': 'CADENA',  // Asumiendo que cualquier operación con cadena convierte el resultado en cadena.
+            'CHAR': 'CADENA',  // La suma de dos caracteres crea una cadena.
+            'CADENA': 'CADENA'
+        },
+        'CADENA': {
+            'ENTERO': 'CADENA',
+            'DOUBLE': 'CADENA',
+            'BOOL': 'CADENA',
+            'CHAR': 'CADENA',
+            'CADENA': 'CADENA'
+        }
+    };
+
+    // Devuelve el tipo combinado si la operación es válida, de lo contrario undefined.
+    return (combinaciones[tipo1] && combinaciones[tipo1][tipo2]) || undefined;
+}
+
 
 module.exports = Aritmetica;

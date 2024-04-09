@@ -3,10 +3,12 @@ class TablaSimbolos {
         this.tabla = {};
     }
 
-    agregarVariable(tipo, ids, valor = 0, linea, columna) {
+    agregarVariable(tipo, ids, linea, columna, valor = null) {
         let declaraciones = [];
-        if(valor === 0){
-            if(tipo === 'DOUBLE'){
+        if(valor === null){
+            if(tipo === 'ENTERO'){
+                valor = 0;
+            } else if(tipo === 'DOUBLE'){
                 valor = 0.0;
             } else if(tipo === 'BOOL') {
                 valor = true;
@@ -58,4 +60,10 @@ class TablaSimbolos {
             return undefined;
         }
     }   
+
+    obtenerTabla() {
+        return this.tabla;
+    }
 }
+
+module.exports = TablaSimbolos

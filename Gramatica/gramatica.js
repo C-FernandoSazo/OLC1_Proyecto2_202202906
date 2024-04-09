@@ -131,22 +131,28 @@ case 17:
  this.$ = 'CADENA'; 
 break;
 case 18:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'SUMA', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'SUMA', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 19:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'RESTA', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'RESTA', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
 break;
 case 20:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MULT', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'MULT', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
 break;
 case 21:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'DIV', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'DIV', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
 break;
 case 22:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MOD', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'MOD', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
 break;
 case 23:
- this.$ = nuevaOpBinaria($$[$0-3], $$[$0-1], 'POW', this._$.first_line, this._$.first_column+1) 
+ var result = Aritmetica(nuevaOpBinaria($$[$0-3], $$[$0-1], 'POW', this._$.first_line, this._$.first_column+1)) 
+                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
 break;
 case 24:
  this.$ = tablaSimbolos.increasedecreaseValor($$[$0-1], 'INCREASE', this._$.first_line, this._$.first_column+1) 
@@ -155,7 +161,7 @@ case 25:
  this.$ = tablaSimbolos.increasedecreaseValor($$[$0-1], 'DECREASE', this._$.first_line, this._$.first_column+1) 
 break;
 case 26:
- console.log('QUE PASOOOO'); this.$ = casteo($$[$0-2],$$[$0]); 
+ this.$ = casteo($$[$0-2],$$[$0]); 
 break;
 case 30:
  this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'IGUALACION', this._$.first_line, this._$.first_column+1) 
@@ -176,7 +182,8 @@ case 35:
  this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) 
 break;
 case 36:
- this.$ = nuevaOpTernaria($$[$0-4], $$[$0-2], $$[$0], 'IFSHORT', this._$.first_line, this._$.first_column+1) 
+ var result = OpTernario(nuevaOpTernaria($$[$0-4], $$[$0-2], $$[$0], 'IFSHORT', this._$.first_line, this._$.first_column+1)) 
+                                                                this.$ = nuevoValor(result.valor, result.tipo, this._$.first_line, this._$.first_column+1)
 break;
 case 37:
  this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'AND', this._$.first_line, this._$.first_column+1) 
@@ -489,12 +496,14 @@ _handle_error:
 }};
 
     // Importar librerías y variables
+        const Aritmetica = require("../Util/Aritmetica");
+        const TablaSimbolos = require('../Util/TablaSimbolos');
+        const OpTernario = require('../Util/Comparaciones/Ternario');
         var cadena = '';
         var errores = [];
-        var TablaSims = [];
         var textoConsola = 'Salida:\n';
+        var tablaSimbolos = new TablaSimbolos();
 
-    var tablaSimbolos = {};
 
     function nuevoValor(valor, tipoValor, linea, columna) {
         let obj = {
@@ -569,75 +578,6 @@ _handle_error:
         }
     }
 
-    class TablaSimbolos {
-        constructor() {
-            this.tabla = {};
-        }
-
-        agregarVariable(tipo, ids, linea, columna, valor = null) {
-            let declaraciones = [];
-            if(valor === null){
-                if(tipo === 'ENTERO'){
-                    valor = 0;
-                } else if(tipo === 'DOUBLE'){
-                    valor = 0.0;
-                } else if(tipo === 'BOOL') {
-                    valor = true;
-                } else if(tipo === 'CHAR') {
-                    valor = '0';
-                } else if(tipo === 'CADENA') {
-                    valor = "";
-                }
-            }
-            ids.forEach(id => {
-                if (this.tabla[id] === undefined) {
-                    this.tabla[id] = { tipo: tipo, valor: valor };
-                    declaraciones.push({ tipo: 'declaracion', id, valor, linea, columna });
-                } else {
-                    console.error(`La variable ${id} ya está declarada.`);
-                }
-            });
-            return declaraciones;
-        }
-
-        asignarValor(id, valor, linea, columna) {
-            if (this.tabla[id] !== undefined) {
-                this.tabla[id].valor.valor = valor;
-                return { tipo: 'asignacion', id, valor, linea, columna };
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-            }
-        }
-
-        increasedecreaseValor(id, tipo, linea, columna) {
-            if (this.tabla[id] !== undefined) {
-                if (tipo === 'INCREASE'){
-                    this.tabla[id].valor.valor++;
-                    return { tipo: 'INCREMENTO', id, linea, columna };
-                } else if (tipo === 'DECREASE'){
-                    this.tabla[id].valor.valor--;
-                    return { tipo: 'DECREMENTO', id, linea, columna };
-                }
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-            }
-        }
-
-        obtenerValor(id) {
-            if (this.tabla[id] !== undefined) {
-                return this.tabla[id].valor;
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-                return undefined;
-            }
-        }   
-
-        obtenerTabla() {
-            return this.tabla;
-        }
-    }
-
-    var tablaSimbolos = new TablaSimbolos();
 /* generated by jison-lex 0.3.4 */
 var lexer = (function(){
 var lexer = ({
@@ -1074,20 +1014,28 @@ case 52: cadena += "\r";
 break;
 case 53: yy_.yytext = cadena; this.popState(); console.log('Token: CADENA, Valor: ' + yy_.yytext); return 56; 
 break;
-case 54: cadena = ''; this.begin("character"); 
+case 54: this.begin("character"); 
 break;
-case 55: cadena = yy_.yytext;
+case 55: return 57;
 break;
-case 56: yy_.yytext = cadena; this.popState(); console.log('Token: CHAR, Valor: ' + yy_.yytext); return 57; 
+case 56: return 57; 
 break;
-case 57:return 5;
+case 57: return 57; 
 break;
-case 58:  errores.push({tipo: "Lexico", error: 'El simbolo "'+yy_.yytext+'" no pertenece al lenguaje', linea: yy_.yylloc.first_line, columna : yy_.yylloc.first_column+1})  
+case 58: return 57; 
+break;
+case 59: return 57; 
+break;
+case 60: this.popState(); 
+break;
+case 61:return 5;
+break;
+case 62:  errores.push({tipo: "Lexico", error: 'El simbolo "'+yy_.yytext+'" no pertenece al lenguaje', linea: yy_.yylloc.first_line, columna : yy_.yylloc.first_column+1})  
 break;
 }
 },
-rules: [/^(?:\s+)/i,/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:==)/i,/^(?:!=)/i,/^(?:<=)/i,/^(?:>=)/i,/^(?:\|\|)/i,/^(?:&&)/i,/^(?:!)/i,/^(?:<<)/i,/^(?:\+\+)/i,/^(?:--)/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?::)/i,/^(?:true\b)/i,/^(?:false\b)/i,/^(?:,)/i,/^(?:;)/i,/^(?:\+)/i,/^(?:-)/i,/^(?:\*)/i,/^(?:\/)/i,/^(?:%)/i,/^(?:pow\b)/i,/^(?:\()/i,/^(?:\))/i,/^(?:<)/i,/^(?:>)/i,/^(?:\{)/i,/^(?:\})/i,/^(?:\?)/i,/^(?:cout\b)/i,/^(?:endl\b)/i,/^(?:if\b)/i,/^(?:else\b)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:['])/i,/^(?:([^'\\]|\\.))/i,/^(?:['])/i,/^(?:$)/i,/^(?:.)/i],
-conditions: {"MULTILINE_COMMENT":{"rules":[],"inclusive":false},"string":{"rules":[45,46,47,48,49,50,51,52,53],"inclusive":false},"character":{"rules":[55,56],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,54,57,58],"inclusive":true}}
+rules: [/^(?:\s+)/i,/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:==)/i,/^(?:!=)/i,/^(?:<=)/i,/^(?:>=)/i,/^(?:\|\|)/i,/^(?:&&)/i,/^(?:!)/i,/^(?:<<)/i,/^(?:\+\+)/i,/^(?:--)/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:bool\b)/i,/^(?:char\b)/i,/^(?:std::string\b)/i,/^(?:=)/i,/^(?::)/i,/^(?:true\b)/i,/^(?:false\b)/i,/^(?:,)/i,/^(?:;)/i,/^(?:\+)/i,/^(?:-)/i,/^(?:\*)/i,/^(?:\/)/i,/^(?:%)/i,/^(?:pow\b)/i,/^(?:\()/i,/^(?:\))/i,/^(?:<)/i,/^(?:>)/i,/^(?:\{)/i,/^(?:\})/i,/^(?:\?)/i,/^(?:cout\b)/i,/^(?:endl\b)/i,/^(?:if\b)/i,/^(?:else\b)/i,/^(?:([a-zA-Z])[a-zA-Z0-9_]*)/i,/^(?:[0-9]+(\.[0-9]+)\b)/i,/^(?:[0-9]+\b)/i,/^(?:["])/i,/^(?:[^"\\]+)/i,/^(?:\\")/i,/^(?:\\n)/i,/^(?:\s)/i,/^(?:\\t)/i,/^(?:\\\\)/i,/^(?:\\\\')/i,/^(?:\\r)/i,/^(?:["])/i,/^(?:['])/i,/^(?:\\x[0-9a-fA-F]{2})/i,/^(?:\\n)/i,/^(?:\\t)/i,/^(?:\\r)/i,/^(?:[^\\\'])/i,/^(?:')/i,/^(?:$)/i,/^(?:.)/i],
+conditions: {"string":{"rules":[45,46,47,48,49,50,51,52,53],"inclusive":false},"character":{"rules":[55,56,57,58,59,60],"inclusive":false},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,54,61,62],"inclusive":true}}
 });
 return lexer;
 })();

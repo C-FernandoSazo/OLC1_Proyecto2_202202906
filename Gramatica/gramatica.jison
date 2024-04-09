@@ -1,16 +1,18 @@
 %{
     // Importar librerías y variables
+        const Aritmetica = require("../Util/Aritmetica");
+        const TablaSimbolos = require('../Util/TablaSimbolos');
+        const OpTernario = require('../Util/Comparaciones/Ternario');
         var cadena = '';
         var errores = [];
-        var TablaSims = [];
         var textoConsola = 'Salida:\n';
+        var tablaSimbolos = new TablaSimbolos();
 %}
 %lex // Inicia parte léxica
 
 %options case-insensitive
 %x character
 %x string
-%x MULTILINE_COMMENT
 
 // Tokens
 %%
@@ -74,9 +76,13 @@
 <string>"\\r"           { cadena += "\r"; }
 <string>["]             { yytext = cadena; this.popState(); console.log('Token: CADENA, Valor: ' + yytext); return 'CADENA'; }
 
-[']                         { cadena = ''; this.begin("character"); }
-<character>([^'\\]|\\.)     { cadena = yytext;}
-<character>[']              { yytext = cadena; this.popState(); console.log('Token: CHAR, Valor: ' + yytext); return 'CARACTER'; }
+[']                            { this.begin("character"); }
+<character>\\x[0-9a-fA-F]{2}   { return 'CARACTER';}
+<character>"\\n"               { return 'CARACTER'; }
+<character>"\\t"               { return 'CARACTER'; }
+<character>"\\r"               { return 'CARACTER'; }
+<character>[^\\\']             { return 'CARACTER'; }
+<character>\'                  { this.popState(); }
 
 <<EOF>>                 return 'EOF';
 
@@ -86,7 +92,6 @@
 /lex
 
 %{
-    var tablaSimbolos = {};
 
     function nuevoValor(valor, tipoValor, linea, columna) {
         let obj = {
@@ -161,75 +166,6 @@
         }
     }
 
-    class TablaSimbolos {
-        constructor() {
-            this.tabla = {};
-        }
-
-        agregarVariable(tipo, ids, linea, columna, valor = null) {
-            let declaraciones = [];
-            if(valor === null){
-                if(tipo === 'ENTERO'){
-                    valor = 0;
-                } else if(tipo === 'DOUBLE'){
-                    valor = 0.0;
-                } else if(tipo === 'BOOL') {
-                    valor = true;
-                } else if(tipo === 'CHAR') {
-                    valor = '0';
-                } else if(tipo === 'CADENA') {
-                    valor = "";
-                }
-            }
-            ids.forEach(id => {
-                if (this.tabla[id] === undefined) {
-                    this.tabla[id] = { tipo: tipo, valor: valor };
-                    declaraciones.push({ tipo: 'declaracion', id, valor, linea, columna });
-                } else {
-                    console.error(`La variable ${id} ya está declarada.`);
-                }
-            });
-            return declaraciones;
-        }
-
-        asignarValor(id, valor, linea, columna) {
-            if (this.tabla[id] !== undefined) {
-                this.tabla[id].valor.valor = valor;
-                return { tipo: 'asignacion', id, valor, linea, columna };
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-            }
-        }
-
-        increasedecreaseValor(id, tipo, linea, columna) {
-            if (this.tabla[id] !== undefined) {
-                if (tipo === 'INCREASE'){
-                    this.tabla[id].valor.valor++;
-                    return { tipo: 'INCREMENTO', id, linea, columna };
-                } else if (tipo === 'DECREASE'){
-                    this.tabla[id].valor.valor--;
-                    return { tipo: 'DECREMENTO', id, linea, columna };
-                }
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-            }
-        }
-
-        obtenerValor(id) {
-            if (this.tabla[id] !== undefined) {
-                return this.tabla[id].valor;
-            } else {
-                console.error(`La variable ${id} no está declarada.`);
-                return undefined;
-            }
-        }   
-
-        obtenerTabla() {
-            return this.tabla;
-        }
-    }
-
-    var tablaSimbolos = new TablaSimbolos();
 %}
 
 //Presedencia
@@ -284,15 +220,21 @@ tipo
     | STD { $$ = 'CADENA'; }
 ;
 
-expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1) }
-            | expresion RES expresion       { $$ = nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1) }
-            | expresion MULT expresion      { $$ = nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1) }
-            | expresion DIV expresion       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
-            | expresion MOD expresion       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
-            | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { $$ = nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1) }
-            | ID INCREASE      { $$ = tablaSimbolos.increasedecreaseValor($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
-            | ID DECREASE     { $$ = tablaSimbolos.increasedecreaseValor($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
-            | OPENPAREN tipo CLOSEPAREN expresion  { console.log('QUE PASOOOO'); $$ = casteo($2,$4); }
+expresion : expresion SUMA expresion        { var result = Aritmetica(nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
+            | expresion RES expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+            | expresion MULT expresion      { var result = Aritmetica(nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+            | expresion DIV expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+            | expresion MOD expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+            | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { var result = Aritmetica(nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1)) 
+                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+            | ID INCREASE           { $$ = tablaSimbolos.increasedecreaseValor($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
+            | ID DECREASE           { $$ = tablaSimbolos.increasedecreaseValor($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
+            | OPENPAREN tipo CLOSEPAREN expresion  { $$ = casteo($2,$4); }
             | op_relacional     { $$ = $1; }
             | op_logicos        { $$ = $1; }
             | valor             { $$ = $1; }
@@ -305,7 +247,8 @@ op_relacional
             | expresion ORMENORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
             | expresion ORMAYOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
             | expresion ORMAYORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
-            | expresion INCOGNITA expresion PUNTOS expresion  { $$ = nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1) }
+            | expresion INCOGNITA expresion PUNTOS expresion  { var result = OpTernario(nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1)) 
+                                                                $$ = nuevoValor(result.valor, result.tipo, this._$.first_line, this._$.first_column+1)}
 ;
 
 op_logicos

@@ -1,15 +1,35 @@
 function ValorExpresion(expresion)  {
     switch(expresion.tipoValor){
         case 'CADENA':
-            return String(expresion.valor)
+            let objC = {
+                valor: String(expresion.valor),
+                tipoValor: 'CADENA'
+            }
+            return objC
         case 'CHAR':
-            return String(expresion.valor)
+            let objChar = {
+                valor: String(expresion.valor),
+                tipoValor: 'CHAR'
+            }
+            return objChar
         case 'ENTERO' :
-            return parseInt(expresion.valor)
+            let objE = {
+                valor: parseInt(expresion.valor),
+                tipoValor: 'ENTERO'
+            }
+            return objE
         case 'DOUBLE' :
-            return parseFloat(expresion.valor)
+            let objD = {
+                valor: parseFloat(expresion.valor),
+                tipoValor: 'DOUBLE'
+            }
+            return objD
         case 'BOOL' :
-            return expresion.valor
+            let objB = {
+                valor: expresion.valor,
+                tipoValor: 'BOOL'
+            }
+            return objB
         default:
             console.log('Error al reconocer', expresion)
             return undefined;
