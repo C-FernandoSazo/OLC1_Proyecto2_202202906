@@ -1,33 +1,70 @@
+const Expresion = require('../Modelo/Expresion')
+
 class TablaSimbolos {
     constructor() {
         this.tabla = {};
+        this.arrays = {};
     }
 
-    agregarVariable(tipo, ids, linea, columna, valor = null) {
-        let declaraciones = [];
-        if(valor === null){
-            if(tipo === 'ENTERO'){
-                valor = 0;
+    agregarVariable(expresion) {
+        console.log("DECLARACION VARIABLE-----------------")
+        console.log(expresion)
+        console.log(expresion.valor)
+        if(expresion.valor === null){
+            if(expresion.tipo === 'ENTERO'){
+                let obj = {
+                    valor: 0,
+                    tipoValor: 'ENTERO',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
             } else if(tipo === 'DOUBLE'){
-                valor = 0.0;
+                let obj = {
+                    valor: 0.0,
+                    tipoValor: 'DOUBLE',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
             } else if(tipo === 'BOOL') {
-                valor = true;
+                let obj = {
+                    valor: true,
+                    tipoValor: 'BOOL',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
             } else if(tipo === 'CHAR') {
-                valor = '0';
+                let obj = {
+                    valor: '0',
+                    tipoValor: 'CHAR',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
             } else if(tipo === 'CADENA') {
-                valor = "";
+                let obj = {
+                    valor: "",
+                    tipoValor: 'CADENA',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
             }
+        } else {
+            expresion.valor = Expresion(expresion.valor)
         }
-        ids.forEach(id => {
+        expresion.ids.forEach(id => {
             if (this.tabla[id] === undefined) {
-                this.tabla[id] = { tipo: tipo, valor: valor };
-                declaraciones.push({ tipo: 'declaracion', id, valor, linea, columna });
+                this.tabla[id] = { tipo: expresion.tipo, valor: expresion.valor };
             } else {
                 console.error(`La variable ${id} ya está declarada, cambiando su valor...`);
-                this.tabla[id].valor = valor;
+                this.tabla[id].valor = expresion.valor;
             }
         });
-        return declaraciones;
+        console.log("SE TEMRINO DE DECLARAR LA VARIABLE--------------------")
+        return null;
     }
 
     asignarValor(id, valor, linea, columna) {
@@ -53,17 +90,93 @@ class TablaSimbolos {
         }
     }
 
-    obtenerValor(id) {
+    getValor(id) {
         if (this.tabla[id] !== undefined) {
             return this.tabla[id].valor;
         } else {
             console.error(`La variable ${id} no está declarada.`);
             return undefined;
         }
-    }   
+    } 
+    
+    // Arrays
+    agregarArray(expresion){
+        if (this.arrays[expresion.id] === undefined){
+            // Arreglo de Una dimension
+            if (!expresion.cuadrada){
+                if (expresion.size !== null){
+                    let array = [];
+                    this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite: expresion.size.valor };
+                } else {
+                    let arraytemp = [];
+                    expresion.valores.forEach(valor => {
+                        arraytemp.push(valor);
+                    });
+                    this.arrays[expresion.id] = {tipo: expresion.tipo, valor: arraytemp, limite: expresion.valores.length };
+                }
+            // Arreglo de Dos dimensiones
+            } else {
+                if (expresion.size !== null && expresion.size2 !== null) {
+                    let arraytmp1 = [];
+                    let arraytmp2 = [];
+                    let array = [arraytmp1,arraytmp2];
+                    this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite: expresion.size.valor, limite2: expresion.size2.valor};
+                } else {
+                    let arraytmp1 = [];
+                    let arraytmp2 = [];
+                    expresion.valores.forEach(valor => {
+                        arraytmp1.push(valor);
+                    });
+                    expresion.valores2.forEach(valor => {
+                        arraytmp2.push(valor);
+                    });
+                    let array = [arraytmp1,arraytmp2];
+                    this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite1: arraytmp1.length, limite2: arraytmp2.length};
+                }
+            }
+        } else {
+            console.error(`El array ${expresion.id} ya está declarado`);
+        }
+        return null
+    }
 
-    obtenerTabla() {
+    getValorArray(id, p1, p2){
+        if (this.arrays[id] !== undefined){
+            let array = this.arrays[id].valor
+            console.log("Arreglo: \n",array)
+            if (p2 === null){
+                return array[p1.valor]
+            } else {
+                return array[p1.valor][p2.valor]
+            }
+        }
+        return null
+    }
+    
+    asignarValorArray(expresion){
+        let tipoValor = expresion.valor?.tipoValor ?? 'valor por defecto';
+        if (tipoValor === 'ID' || tipoValor === 'ARRAY') {
+            expresion.valor = Expresion(expresion.valor);
+        }
+        if (this.arrays[expresion.id] !== undefined){
+            if (expresion.pos2 === null){
+                this.arrays[expresion.id].valor[expresion.pos1.valor] = expresion.valor
+            } else {
+                this.arrays[expresion.id].valor[expresion.pos1.valor][expresion.pos2.valor] = expresion.valor
+            } 
+        }
+    }
+    clear(){
+        this.tabla = {};
+        this.arrays = {};
+    }
+
+    getTabla() {
         return this.tabla;
+    }
+
+    getArray(){
+        return this.arrays;
     }
 }
 

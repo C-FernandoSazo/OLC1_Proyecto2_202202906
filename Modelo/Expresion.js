@@ -1,5 +1,6 @@
 function Expresion(expresion,consola=null)   {
-    const tiposValores = ['DOUBLE', 'ENTERO', 'CADENA', 'BOOL', 'CHAR']
+    const tablaS = global.tablaSimbolos;
+    const tiposValores = ['DOUBLE', 'ENTERO', 'CADENA', 'BOOL', 'CHAR', 'ID', 'ARRAY']
     const operacionesAritmeticas = ['SUMA', 'RESTA', 'MULT', 'DIV', 'POW', 'MOD'];
     const operacionesRelacionales = ['IGUALACION', 'DIF', 'MENORQUE', 'MENORIGUALQUE', 'MAYORQUE', 'MAYORIGUALQUE'];
     const operacionesLogicas = ['AND', 'OR', 'NOT']
@@ -9,7 +10,11 @@ function Expresion(expresion,consola=null)   {
         return ValorExpresion(expresion);
     }
     else if(expresion.tipoOperacion === 'declaracion_var'){
-
+        console.log("VA ENTRAR A AGREGAR VARIBLE")
+        return tablaS.agregarVariable(expresion);
+    }
+    else if(expresion.tipoOperacion === 'declaracion_array'){
+        return tablaS.agregarArray(expresion);
     }
     else if(operacionesAritmeticas.includes(expresion.tipoOperacion)) {
         const Aritmetica = require("../Util/Aritmetica");
@@ -26,6 +31,9 @@ function Expresion(expresion,consola=null)   {
     else if(operacionesLogicas.includes(expresion.tipoOperacion)){
         const OpLogic = require('../Util/Comparaciones/Logicos')
         return OpLogic(expresion);
+    }
+    else if(expresion.tipoOperacion === 'modify_array'){
+        return tablaS.asignarValorArray(expresion);
     }
     else if(expresion.tipoOperacion === 'sent_if'){
         const IfSentence = require('../Util/Control/IfSentence')

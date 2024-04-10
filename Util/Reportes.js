@@ -1,6 +1,10 @@
 const fs = require('fs'); 
 
 class Reportes {
+    constructor(){
+        this.errores = [];
+    }
+    
     generarTablaErrores(errores) {
         let html = `
             <!DOCTYPE html>

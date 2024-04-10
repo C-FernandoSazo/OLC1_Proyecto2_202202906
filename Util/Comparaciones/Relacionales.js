@@ -1,6 +1,17 @@
 const Expresion = require('C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Modelo/Expresion')
 
 function OpRelacional(expresion){
+    console.log("ENTRO A OPERACIONAL ----------------")
+    let tipoValor = expresion.valor1?.tipoValor ?? 'valor por defecto';
+    if (tipoValor === 'ID' || tipoValor === 'ARRAY') {
+        expresion.valor1 = Expresion(expresion.valor1);
+    }
+    let tipoValor2 = expresion.valor2?.tipoValor ?? 'valor por defecto';
+    if (tipoValor2 === 'ID' || tipoValor2 === 'ARRAY') {
+        expresion.valor2 = Expresion(expresion.valor2);
+        console.log("Cambio \n", expresion.valor2)
+    }
+
     let n1 = Expresion(expresion.valor1)
     let n2 = Expresion(expresion.valor2)
 
@@ -13,17 +24,41 @@ function OpRelacional(expresion){
 
     switch(expresion.tipoOperacion){
         case 'IGUALACION':
-            return n1.valor === n2.valor;
+            let objI = {
+                valor: n1.valor === n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objI;
         case 'DIF':
-            return n1.valor !== n2.valor;
+            let objD = {
+                valor: n1.valor !== n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objD;
         case 'MENORQUE':
-            return n1.valor < n2.valor;
+            let objME = {
+                valor: n1.valor < n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objME;
         case 'MENORIGUALQUE':
-            return n1.valor <= n2.valor;
+            let objMQ = {
+                valor: n1.valor <= n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objMQ;
         case 'MAYORQUE':
-            return n1.valor > n2.valor;
+            let objMA = {
+                valor: n1.valor > n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objMA;
         case 'MAYORIGUALQUE':
-            return n1.valor >= n2.valor;
+            let objMAQ = {
+                valor: n1.valor >= n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return objMAQ;
     }
 }
 

@@ -5,7 +5,8 @@ let cors = require('cors');
 const parser = require("./Gramatica/gramatica.js");
 const Procesador = require("./Gramatica/AST.js");
 const Reportes = require('./Util/Reportes.js');
-const { exec } = require('child_process');
+const TablaSimbolos = require('./Util/TablaSimbolos.js');
+global.tablaSimbolos = new TablaSimbolos()
 
 app.use(cors());
 app.use(express.json());
@@ -18,13 +19,15 @@ app.get("/", (req, res) => {
 
 // Post recibir el texto de la consola y analizarlo con el parser
 app.post('/compile', (req, res) => {
+    let tablaSimbolos = global.tablaSimbolos
+    tablaSimbolos.clear();
     let reportes = new Reportes();
     var input = req.body.input;
     var result = parser.parse(input);
     console.log("Instrucciones: \n", result.instrucciones)
-    console.log(result.tablaS);
     var ast = new Procesador(result.instrucciones);
     ast.analizarInst();
+    console.log(tablaSimbolos)
     res.send({ output: ast.getConsola() });
     });
 
