@@ -3,7 +3,7 @@ const path = require('path')
 const app = express();
 let cors = require('cors');
 const parser = require("./Gramatica/gramatica.js");
-const Procesador = require("./Gramatica/Procesador.js");
+const Procesador = require("./Gramatica/AST.js");
 const Reportes = require('./Util/Reportes.js');
 const { exec } = require('child_process');
 
@@ -23,9 +23,9 @@ app.post('/compile', (req, res) => {
     var result = parser.parse(input);
     console.log("Instrucciones: \n", result.instrucciones)
     console.log(result.tablaS);
-    var salida = Procesador(result.instrucciones);
-    console.log("SALIDA: \n", salida)
-    res.send({ output: result.texto });
+    var ast = new Procesador(result.instrucciones);
+    ast.analizarInst();
+    res.send({ output: ast.getConsola() });
     });
 
 // Se ejecutara cuando el servidor este activo

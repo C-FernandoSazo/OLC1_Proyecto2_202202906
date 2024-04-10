@@ -84,8 +84,8 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- console.log("Entrada procesada con éxito."); retorno = { instrucciones: $$[$0-1], errores: errores, texto: textoConsola, tablaS: tablaSimbolos.obtenerTabla()  }; 
-                        errores = []; textoConsola = "Salida:\n"; return retorno; 
+ console.log("Entrada procesada con éxito."); retorno = { instrucciones: $$[$0-1], errores: errores, tablaS: tablaSimbolos.obtenerTabla()  }; 
+                        errores = []; return retorno; 
 break;
 case 2:
  $$[$0-1].push($$[$0]); this.$=$$[$0-1]; 
@@ -136,23 +136,23 @@ case 18:
 break;
 case 19:
  var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'RESTA', this._$.first_line, this._$.first_column+1)) 
-                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 20:
  var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'MULT', this._$.first_line, this._$.first_column+1)) 
-                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 21:
  var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'DIV', this._$.first_line, this._$.first_column+1)) 
-                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 22:
  var result = Aritmetica(nuevaOpBinaria($$[$0-2], $$[$0], 'MOD', this._$.first_line, this._$.first_column+1)) 
-                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 23:
  var result = Aritmetica(nuevaOpBinaria($$[$0-3], $$[$0-1], 'POW', this._$.first_line, this._$.first_column+1)) 
-                                                this.$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)
+                                                this.$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)
 break;
 case 24:
  this.$ = tablaSimbolos.increasedecreaseValor($$[$0-1], 'INCREASE', this._$.first_line, this._$.first_column+1) 
@@ -164,22 +164,28 @@ case 26:
  this.$ = casteo($$[$0-2],$$[$0]); 
 break;
 case 30:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'IGUALACION', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'IGUALACION', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 31:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'DIF', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'DIF', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 32:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MENORQUE', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'MENORQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 33:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 34:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MAYORQUE', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'MAYORQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 35:
- this.$ = nuevaOpBinaria($$[$0-2], $$[$0], 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) 
+ var result = OpRelacional(nuevaOpBinaria($$[$0-2], $$[$0], 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    this.$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)
 break;
 case 36:
  var result = OpTernario(nuevaOpTernaria($$[$0-4], $$[$0-2], $$[$0], 'IFSHORT', this._$.first_line, this._$.first_column+1)) 
@@ -195,10 +201,10 @@ case 39:
  this.$ = nuevaOpBinaria($$[$0], null, 'NOT', this._$.first_line, this._$.first_column+1) 
 break;
 case 40:
- textoConsola += $$[$0].valor; 
+ this.$ = nuevaOpUnit($$[$0],'PRINT',this._$.first_line, this._$.first_column+1) 
 break;
 case 41:
- textoConsola += $$[$0-2].valor+'\n'; 
+ this.$ = nuevaOpUnit($$[$0-2],'PRINT',this._$.first_line, this._$.first_column+1,true) 
 break;
 case 43:
  this.$ = []; 
@@ -498,10 +504,10 @@ _handle_error:
     // Importar librerías y variables
         const Aritmetica = require("../Util/Aritmetica");
         const TablaSimbolos = require('../Util/TablaSimbolos');
+        const OpRelacional = require('../Util/Comparaciones/Relacionales');
         const OpTernario = require('../Util/Comparaciones/Ternario');
         var cadena = '';
         var errores = [];
-        var textoConsola = 'Salida:\n';
         var tablaSimbolos = new TablaSimbolos();
 
 
@@ -509,6 +515,17 @@ _handle_error:
         let obj = {
             valor: valor,
             tipoValor: tipoValor,
+            linea: linea,
+            columna: columna
+        }
+        return obj;
+    }
+
+    function nuevaOpUnit(valor,tipoOperacion,linea,columna,comodin=false){
+        let obj = {
+            valor: valor,
+            tipoOperacion: tipoOperacion,
+            comodin: comodin,
             linea: linea,
             columna: columna
         }

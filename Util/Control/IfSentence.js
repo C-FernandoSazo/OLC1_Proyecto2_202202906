@@ -1,14 +1,12 @@
-const Expresion = require('C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Modelo/Expresion')
-const OpRelacional = require('../Comparaciones/Relacionales')
-const analizarInst = require("C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Gramatica/Procesador.js");
+const analizarInst = require('C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Gramatica/analizarInst')
 
-function IfSentence(expresion){
+function IfSentence(expresion, consola){
     console.log("Sentencia de if")
-    let bool = OpRelacional(expresion.condicion);
-    if(bool){
-        return analizarInst(expresion.bloque);
+    console.log(expresion.condicion.valor)
+    if(expresion.condicion.valor){
+        return analizarInst(expresion.bloque,consola);
     } else if(expresion.elseblock !== null){
-        return analizarInst(expresion.elseblock);
+        return analizarInst(expresion.elseblock,consola);
     } else {
         return undefined;
     }

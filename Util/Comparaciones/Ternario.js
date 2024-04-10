@@ -1,8 +1,6 @@
-const OpRelacional = require('../Comparaciones/Relacionales')
 
 function OpTernario(expresion){
-    let bool = OpRelacional(expresion.condicion);
-    if(bool) {
+    if(expresion.condicion.valor) {
         let obj = {
             valor: expresion.expresion1.valor,
             tipo: expresion.expresion1.tipoValor

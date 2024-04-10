@@ -4,26 +4,26 @@ function OpRelacional(expresion){
     let n1 = Expresion(expresion.valor1)
     let n2 = Expresion(expresion.valor2)
 
-    if (expresion.valor1.tipoValor === 'CHAR' && typeof n2 === 'number') {
-        n1 = n1.charCodeAt(0);
+    if (n1.tipoValor === 'CHAR' && typeof n2.valor === 'number') {
+        n1.valor = n1.valor.charCodeAt(0);
     }
-    if (expresion.valor2.tipoValor === 'CHAR' && typeof n1 === 'number') {
-        n2 = n2.charCodeAt(0);
+    if (n2.tipoValor === 'CHAR' && typeof n1.valor === 'number') {
+        n2.valor = n2.charCodeAt(0);
     }
 
     switch(expresion.tipoOperacion){
         case 'IGUALACION':
-            return n1 === n2;
+            return n1.valor === n2.valor;
         case 'DIF':
-            return n1 !== n2;
+            return n1.valor !== n2.valor;
         case 'MENORQUE':
-            return n1 < n2;
+            return n1.valor < n2.valor;
         case 'MENORIGUALQUE':
-            return n1 <= n2;
+            return n1.valor <= n2.valor;
         case 'MAYORQUE':
-            return n1 > n2;
+            return n1.valor > n2.valor;
         case 'MAYORIGUALQUE':
-            return n1 >= n2;
+            return n1.valor >= n2.valor;
     }
 }
 

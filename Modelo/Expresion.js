@@ -1,4 +1,4 @@
-function Expresion(expresion)   {
+function Expresion(expresion,consola=null)   {
     const tiposValores = ['DOUBLE', 'ENTERO', 'CADENA', 'BOOL', 'CHAR']
     const operacionesAritmeticas = ['SUMA', 'RESTA', 'MULT', 'DIV', 'POW', 'MOD'];
     const operacionesRelacionales = ['IGUALACION', 'DIF', 'MENORQUE', 'MENORIGUALQUE', 'MAYORQUE', 'MAYORIGUALQUE'];
@@ -7,6 +7,9 @@ function Expresion(expresion)   {
     if(tiposValores.includes(expresion.tipoValor)) {
         const ValorExpresion = require("../Modelo/Valor");
         return ValorExpresion(expresion);
+    }
+    else if(expresion.tipoOperacion === 'declaracion_var'){
+
     }
     else if(operacionesAritmeticas.includes(expresion.tipoOperacion)) {
         const Aritmetica = require("../Util/Aritmetica");
@@ -26,7 +29,11 @@ function Expresion(expresion)   {
     }
     else if(expresion.tipoOperacion === 'sent_if'){
         const IfSentence = require('../Util/Control/IfSentence')
-        return IfSentence(expresion);
+        return IfSentence(expresion,consola);
+    }
+    else if (expresion.tipoOperacion === 'PRINT'){
+        const printConsole = require('../Util/Print')
+        return printConsole(expresion,consola)
     }  
 }
 

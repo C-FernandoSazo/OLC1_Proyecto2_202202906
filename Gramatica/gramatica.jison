@@ -2,10 +2,10 @@
     // Importar librerías y variables
         const Aritmetica = require("../Util/Aritmetica");
         const TablaSimbolos = require('../Util/TablaSimbolos');
+        const OpRelacional = require('../Util/Comparaciones/Relacionales');
         const OpTernario = require('../Util/Comparaciones/Ternario');
         var cadena = '';
         var errores = [];
-        var textoConsola = 'Salida:\n';
         var tablaSimbolos = new TablaSimbolos();
 %}
 %lex // Inicia parte léxica
@@ -103,6 +103,17 @@
         return obj;
     }
 
+    function nuevaOpUnit(valor,tipoOperacion,linea,columna,comodin=false){
+        let obj = {
+            valor: valor,
+            tipoOperacion: tipoOperacion,
+            comodin: comodin,
+            linea: linea,
+            columna: columna
+        }
+        return obj;
+    }
+
     function nuevaOpBinaria(valor1, valor2, tipoOperacion, linea, columna) {
         let obj = {
             valor1: valor1,
@@ -186,8 +197,8 @@
 
 %%
 
-init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1, errores: errores, texto: textoConsola, tablaS: tablaSimbolos.obtenerTabla()  }; 
-                        errores = []; textoConsola = "Salida:\n"; return retorno; }
+init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1, errores: errores, tablaS: tablaSimbolos.obtenerTabla()  }; 
+                        errores = []; return retorno; }
 ;    
 
 entrada : entrada sentencia { $1.push($2); $$=$1; }
@@ -223,15 +234,15 @@ tipo
 expresion : expresion SUMA expresion        { var result = Aritmetica(nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1)) 
                                                 $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | expresion RES expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'RESTA', this._$.first_line, this._$.first_column+1)) 
-                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | expresion MULT expresion      { var result = Aritmetica(nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1)) 
-                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | expresion DIV expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1)) 
-                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | expresion MOD expresion       { var result = Aritmetica(nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1)) 
-                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { var result = Aritmetica(nuevaOpBinaria($3, $5, 'POW', this._$.first_line, this._$.first_column+1)) 
-                                                $$ = nuevoValor(result, 'ENTERO', this._$.first_line, this._$.first_column+1)}
+                                                $$ = nuevoValor(result.valor, result.tipoValor, this._$.first_line, this._$.first_column+1)}
             | ID INCREASE           { $$ = tablaSimbolos.increasedecreaseValor($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
             | ID DECREASE           { $$ = tablaSimbolos.increasedecreaseValor($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
             | OPENPAREN tipo CLOSEPAREN expresion  { $$ = casteo($2,$4); }
@@ -241,12 +252,18 @@ expresion : expresion SUMA expresion        { var result = Aritmetica(nuevaOpBin
 ;
 
 op_relacional
-            : expresion ORIGUAL expresion       { $$ = nuevaOpBinaria($1, $3, 'IGUALACION', this._$.first_line, this._$.first_column+1) } 
-            | expresion ORDIF expresion         { $$ = nuevaOpBinaria($1, $3, 'DIF', this._$.first_line, this._$.first_column+1) } 
-            | expresion ORMENOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MENORQUE', this._$.first_line, this._$.first_column+1) } 
-            | expresion ORMENORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
-            | expresion ORMAYOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) } 
-            | expresion ORMAYORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
+            : expresion ORIGUAL expresion       { var result = OpRelacional(nuevaOpBinaria($1, $3, 'IGUALACION', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)} 
+            | expresion ORDIF expresion         { var result = OpRelacional(nuevaOpBinaria($1, $3, 'DIF', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)} 
+            | expresion ORMENOR expresion       { var result = OpRelacional(nuevaOpBinaria($1, $3, 'MENORQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)} 
+            | expresion ORMENORIGUAL expresion  { var result = OpRelacional(nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)}  
+            | expresion ORMAYOR expresion       { var result = OpRelacional(nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)}  
+            | expresion ORMAYORIGUAL expresion  { var result = OpRelacional(nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1)) 
+                                                    $$ = nuevoValor(result, 'BOOL', this._$.first_line, this._$.first_column+1)} 
             | expresion INCOGNITA expresion PUNTOS expresion  { var result = OpTernario(nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1)) 
                                                                 $$ = nuevoValor(result.valor, result.tipo, this._$.first_line, this._$.first_column+1)}
 ;
@@ -257,8 +274,8 @@ op_logicos
         | NOT expresion             { $$ = nuevaOpBinaria($2, null, 'NOT', this._$.first_line, this._$.first_column+1) }
 ;
 
-print:  COUT ASIGN expresion             { textoConsola += $3.valor; }
-        | COUT ASIGN expresion ASIGN ENDL   { textoConsola += $3.valor+'\n'; }
+print:  COUT ASIGN expresion             { $$ = nuevaOpUnit($3,'PRINT',this._$.first_line, this._$.first_column+1) }
+        | COUT ASIGN expresion ASIGN ENDL   { $$ = nuevaOpUnit($3,'PRINT',this._$.first_line, this._$.first_column+1,true) }
 ;
 
 //Bloque de instrucciones

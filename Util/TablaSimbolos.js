@@ -23,7 +23,8 @@ class TablaSimbolos {
                 this.tabla[id] = { tipo: tipo, valor: valor };
                 declaraciones.push({ tipo: 'declaracion', id, valor, linea, columna });
             } else {
-                console.error(`La variable ${id} ya está declarada.`);
+                console.error(`La variable ${id} ya está declarada, cambiando su valor...`);
+                this.tabla[id].valor = valor;
             }
         });
         return declaraciones;
