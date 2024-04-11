@@ -24,6 +24,9 @@ function Expresion(expresion,consola=null)   {
         const OpRelacional = require('../Util/Comparaciones/Relacionales')
         return OpRelacional(expresion)
     }
+    else if(expresion.tipoOperacion === 'INCREASE' || expresion.tipoOperacion === 'DECREASE'){
+        tablaS.increasedecreaseValor(expresion.valor,expresion.tipoOperacion,expresion.linea,expresion.columna)
+    }
     else if(expresion.tipoOperacion === 'IFSHORT'){
         const OpTernario = require('../Util/Comparaciones/Ternario')
         return OpTernario(expresion);
@@ -41,11 +44,23 @@ function Expresion(expresion,consola=null)   {
     }
     else if(expresion.tipoOperacion === 'sent_switch'){
         const SwitchCase = require('../Util/Control/SwitchCase')
-        return SwitchCase(expresion,consola)
+        return SwitchCase(expresion,consola);
+    }
+    else if(expresion.tipoOperacion === 'sent_while'){
+        const cicloWhile = require('../Util/Ciclos/While')
+        return cicloWhile(expresion,consola);
+    }
+    else if(expresion.tipoOperacion === 'sent_dowhile'){
+        const cicloDoWhile = require('../Util/Ciclos/doWhile')
+        return cicloDoWhile(expresion, consola)
+    }
+    else if(expresion.tipoOperacion === 'sent_for'){
+        const cicloFor = require('../Util/Ciclos/For')
+        return cicloFor(expresion,consola);
     }
     else if (expresion.tipoOperacion === 'PRINT'){
         const printConsole = require('../Util/Print')
-        return printConsole(expresion,consola)
+        return printConsole(expresion,consola);
     }  
 }
 

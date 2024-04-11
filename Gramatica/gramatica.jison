@@ -64,6 +64,9 @@
 "case"                  { return 'CASE'; }
 "default"               { return 'DEFAULT'; }
 "break"                 { return 'BREAK'; }
+"do"                    { return 'DO'; }
+"while"                 { return 'WHILE'; }
+"for"                   { return 'FOR'; }
 
 // Expresiones Regulares
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
@@ -194,6 +197,26 @@
         return obj;
     }
 
+    function sent_while(condicion, instrucciones, tipoOperacion){
+        let obj = {
+            condicion: condicion,
+            instrucciones: instrucciones,
+            tipoOperacion: tipoOperacion
+        }
+        return obj;
+    }
+
+    function sent_for(declaracion, condicion, update, instrucciones){
+        let obj = {
+            declaracion: declaracion,
+            condicion: condicion,
+            update: update,
+            tipoOperacion: 'sent_for',
+            instrucciones: instrucciones
+        }
+        return obj;
+    }
+
     function casteo(tipo, valor) {
         if (tipo === 'DOUBLE' && valor.tipoValor === 'ENTERO'){
             valor.valor = valor.valor + 0.0
@@ -257,6 +280,9 @@ sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
         | expresion PUNTOYCOMA                 { $$ = $1; }
         | sent_if                              { $$ = $1; }
         | sent_switch                          { $$ = $1; }
+        | sent_while                           { $$ = $1; }
+        | sent_for                             { $$ = $1; }
+        | sent_dowhile PUNTOYCOMA              { $$ = $1; }
         | print PUNTOYCOMA                     { $$ = $1; }
         | error PUNTOYCOMA    { console.log("Error al procesar la entrada."); 
     errores.push({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
@@ -304,13 +330,8 @@ expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA'
             | expresion DIV expresion       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
             | expresion MOD expresion       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
             | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { $$ = nuevaOpBinaria($1, $3, 'POW', this._$.first_line, this._$.first_column+1) }
-
-
-            | ID INCREASE           { }
-            | ID DECREASE           { }
-
-
             | OPENPAREN tipo CLOSEPAREN expresion  { $$ = casteo($2,$4); }
+            | actualizacion     { $$ = $1; }
             | op_relacional     { $$ = $1; }
             | op_logicos        { $$ = $1; }
             | valor             { $$ = $1; }
@@ -360,6 +381,19 @@ case_statement: CASE expresion PUNTOS entrada                   { $$ = { case: $
 ;
 
 default_case: DEFAULT PUNTOS entrada  { $$ = { case: 'DEFAULT', bloque: $3 } }
+;
+
+sent_while: WHILE OPENPAREN expresion CLOSEPAREN bloque    { $$ = sent_while($3, $5, 'sent_while') }
+;
+
+sent_dowhile: DO bloque WHILE OPENPAREN expresion CLOSEPAREN    { $$ = sent_while($5, $2, 'sent_dowhile') }
+;
+
+sent_for: FOR OPENPAREN declaracion_variable PUNTOYCOMA op_relacional PUNTOYCOMA actualizacion CLOSEPAREN bloque  { $$ = sent_for($3, $5, $7, $9) }
+;
+
+actualizacion: ID INCREASE                  { $$ = nuevaOpUnit($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
+            | ID DECREASE                   { $$ = nuevaOpUnit($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
 ;
 
 valor

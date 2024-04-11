@@ -67,6 +67,16 @@ class TablaSimbolos {
         return null;
     }
 
+    deleteVariable(id) {
+        if (this.tabla[id] !== undefined) {
+            delete this.tabla[id];
+            console.log(`La variable ${id} ha sido eliminada correctamente.`);
+        } else {
+            console.error(`La variable ${id} no existe y por lo tanto no se puede eliminar.`);
+        }
+    }
+    
+
     asignarValor(id, valor, linea, columna) {
         if (this.tabla[id] !== undefined) {
             this.tabla[id].valor.valor = valor;
