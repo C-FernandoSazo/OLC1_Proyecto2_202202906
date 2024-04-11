@@ -60,7 +60,12 @@
 "if"                    { return 'IF'; }
 "else"                  { return 'ELSE'; }
 "new"                   { return 'NEW'; }
+"switch"                { return 'SWITCH'; }
+"case"                  { return 'CASE'; }
+"default"               { return 'DEFAULT'; }
+"break"                 { return 'BREAK'; }
 
+// Expresiones Regulares
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
 [0-9]+("."[0-9]+)\b     { console.log('Token: DECIMAL, Valor: ' + yytext); return 'DECIMAL'; }
 [0-9]+\b                { console.log('Token: ENTERO, Valor: ' + yytext); return 'ENTERO'; }
@@ -140,10 +145,10 @@
         return obj;
     }
 
-    function sentenciaIf(condicion, bloque, elseblock=null) {
+    function sentenciaControl(condicion, tipoOperacion, bloque, elseblock=null) {
         let obj = {
             condicion: condicion,
-            tipoOperacion: 'sent_if',
+            tipoOperacion: tipoOperacion,
             bloque: bloque,
             elseblock: elseblock
         }
@@ -251,6 +256,7 @@ sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
         | declaracion_array PUNTOYCOMA         { $$ = $1; }
         | expresion PUNTOYCOMA                 { $$ = $1; }
         | sent_if                              { $$ = $1; }
+        | sent_switch                          { $$ = $1; }
         | print PUNTOYCOMA                     { $$ = $1; }
         | error PUNTOYCOMA    { console.log("Error al procesar la entrada."); 
     errores.push({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
@@ -336,9 +342,24 @@ bloque: OPENLLAVE entrada CLOSELLAVE    { $$ = $2; }
         | OPENLLAVE CLOSELLAVE          { $$ = []; }
 ;
 
-sent_if: IF OPENPAREN expresion CLOSEPAREN bloque                   { $$ = sentenciaIf($3, $5) }
-        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE bloque      { $$ = sentenciaIf($3, $5, $7) }
-        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE sent_if     { $$ = sentenciaIf($3, $5, $7) }
+sent_if: IF OPENPAREN expresion CLOSEPAREN bloque                   { $$ = sentenciaControl($3, 'sent_if', $5) }
+        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE bloque      { $$ = sentenciaControl($3, 'sent_if',$5, $7) }
+        | IF OPENPAREN expresion CLOSEPAREN bloque ELSE sent_if     { $$ = sentenciaControl($3, 'sent_if',$5, $7) }
+;
+
+sent_switch: SWITCH OPENPAREN expresion CLOSEPAREN OPENLLAVE cases_list CLOSELLAVE              { $$ = sentenciaControl($3, 'sent_switch', $6)}
+        | SWITCH OPENPAREN expresion CLOSEPAREN OPENLLAVE cases_list default_case CLOSELLAVE    { $$ = sentenciaControl($3, 'sent_switch', $6, $7) }
+;
+
+cases_list: cases_list case_statement { $1.push($2); $$ = $1; }
+        | case_statement      { $$ = [$1]; }
+;
+
+case_statement: CASE expresion PUNTOS entrada                   { $$ = { case: $2, bloque: $4, breakval: false} }
+            | CASE expresion PUNTOS entrada BREAK PUNTOYCOMA    { $$ = { case: $2, bloque: $4, breakval: true} }
+;
+
+default_case: DEFAULT PUNTOS entrada  { $$ = { case: 'DEFAULT', bloque: $3 } }
 ;
 
 valor

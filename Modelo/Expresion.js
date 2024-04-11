@@ -39,6 +39,10 @@ function Expresion(expresion,consola=null)   {
         const IfSentence = require('../Util/Control/IfSentence')
         return IfSentence(expresion,consola);
     }
+    else if(expresion.tipoOperacion === 'sent_switch'){
+        const SwitchCase = require('../Util/Control/SwitchCase')
+        return SwitchCase(expresion,consola)
+    }
     else if (expresion.tipoOperacion === 'PRINT'){
         const printConsole = require('../Util/Print')
         return printConsole(expresion,consola)
