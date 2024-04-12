@@ -18,8 +18,6 @@ function IfSentence(expresion, consola){
         } else {
         return analizarInst(expresion.elseblock,consola);
         }
-    } else {
-        return undefined;
     }
 }
 

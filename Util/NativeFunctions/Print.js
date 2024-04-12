@@ -1,4 +1,4 @@
-const Expresion = require('../Modelo/Expresion')
+const Expresion = require('../../Modelo/Expresion')
 
 function printConsole(expresion,consola){
     console.log(expresion)

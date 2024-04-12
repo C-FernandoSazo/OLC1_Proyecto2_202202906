@@ -5,9 +5,20 @@ function Expresion(expresion,consola=null)   {
     const operacionesRelacionales = ['IGUALACION', 'DIF', 'MENORQUE', 'MENORIGUALQUE', 'MAYORQUE', 'MAYORIGUALQUE'];
     const operacionesLogicas = ['AND', 'OR', 'NOT']
 
-    if(tiposValores.includes(expresion.tipoValor)) {
+    if (expresion.tipoOperacion === 'BREAK' || expresion.tipoOperacion === 'CONTINUE' || expresion.tipoOperacion === 'RETURN'){
+        let obj = {
+            valor: expresion.comodin,
+            tipoOperacion: expresion.tipoOperacion
+        }
+        return obj;
+    }
+    else if(tiposValores.includes(expresion.tipoValor)) {
         const ValorExpresion = require("../Modelo/Valor");
         return ValorExpresion(expresion);
+    }
+    else if(expresion.tipoOperacion === 'CASTEO'){
+        const casteo = require('../Util/NativeFunctions/Casteo');
+        return casteo(expresion);
     }
     else if(expresion.tipoOperacion === 'declaracion_var'){
         console.log("VA ENTRAR A AGREGAR VARIBLE")
@@ -59,7 +70,7 @@ function Expresion(expresion,consola=null)   {
         return cicloFor(expresion,consola);
     }
     else if (expresion.tipoOperacion === 'PRINT'){
-        const printConsole = require('../Util/Print')
+        const printConsole = require('../Util/NativeFunctions/Print')
         return printConsole(expresion,consola);
     }  
 }

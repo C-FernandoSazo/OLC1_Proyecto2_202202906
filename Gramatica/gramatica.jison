@@ -64,6 +64,9 @@
 "case"                  { return 'CASE'; }
 "default"               { return 'DEFAULT'; }
 "break"                 { return 'BREAK'; }
+"continue"              { return 'CONTINUE'; }
+"return"                { return 'RETURN'; }
+"tolower"               { return 'TOLOWER'; }
 "do"                    { return 'DO'; }
 "while"                 { return 'WHILE'; }
 "for"                   { return 'FOR'; }
@@ -217,36 +220,6 @@
         return obj;
     }
 
-    function casteo(tipo, valor) {
-        if (tipo === 'DOUBLE' && valor.tipoValor === 'ENTERO'){
-            valor.valor = valor.valor + 0.0
-            return valor;
-        }
-        else if (tipo === 'ENTERO' && valor.tipoValor === 'DOUBLE'){
-            valor.valor = Math.round(valor.valor);
-            return valor;
-        }
-        else if (tipo === 'STRING' && typeof valor == 'number'){
-            valor.valor.toString();
-            return valor;
-        }
-        else if (tipo === 'CHAR' && valor.tipoValor === 'ENTERO'){
-            valor.valor = String.fromCharCode(valor.valor)
-            return valor
-        }
-        else if (tipo === 'ENTERO' && valor.tipoValor === 'CHAR'){
-            valor.valor = valor.valor.charCodeAt(0);
-            return valor
-        }
-        else if (tipo === 'DOUBLE' && valor.tipoValor === 'CHAR'){
-            valor.valor = valor.valor.charCodeAt(0) + 0.0;
-            return valor
-        }
-        else {
-            return undefined;
-        }
-    }
-
 %}
 
 //Presedencia
@@ -278,6 +251,7 @@ entrada : entrada sentencia { $1.push($2); $$=$1; }
 sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
         | declaracion_array PUNTOYCOMA         { $$ = $1; }
         | expresion PUNTOYCOMA                 { $$ = $1; }
+        | sent_transf PUNTOYCOMA               { $$ = $1; }
         | sent_if                              { $$ = $1; }
         | sent_switch                          { $$ = $1; }
         | sent_while                           { $$ = $1; }
@@ -317,11 +291,11 @@ declaracion_array
 ;
 
 tipo
-    : INT  { $$ = 'ENTERO'; }
-    | DOUBLE { $$ = 'DOUBLE'; }
-    | BOOL { $$ = 'BOOL'; }
-    | CHAR { $$ = 'CHAR'; }
-    | STD { $$ = 'CADENA'; }
+    : INT       { $$ = 'ENTERO'; }
+    | DOUBLE    { $$ = 'DOUBLE'; }
+    | BOOL      { $$ = 'BOOL'; }
+    | CHAR      { $$ = 'CHAR'; }
+    | STD       { $$ = 'CADENA'; }
 ;
 
 expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA', this._$.first_line, this._$.first_column+1) }
@@ -330,8 +304,9 @@ expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA'
             | expresion DIV expresion       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
             | expresion MOD expresion       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
             | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { $$ = nuevaOpBinaria($1, $3, 'POW', this._$.first_line, this._$.first_column+1) }
-            | OPENPAREN tipo CLOSEPAREN expresion  { $$ = casteo($2,$4); }
+            | OPENPAREN tipo CLOSEPAREN expresion  { $$ = nuevaOpUnit($4, 'CASTEO', this._$.first_line, this._$.first_column+1, $2) }
             | actualizacion     { $$ = $1; }
+            | native_function   { $$ = $1; }
             | op_relacional     { $$ = $1; }
             | op_logicos        { $$ = $1; }
             | valor             { $$ = $1; }
@@ -363,6 +338,12 @@ bloque: OPENLLAVE entrada CLOSELLAVE    { $$ = $2; }
         | OPENLLAVE CLOSELLAVE          { $$ = []; }
 ;
 
+sent_transf: BREAK       { $$ = nuevaOpUnit($1, 'BREAK', this._$.first_line, this._$.first_column+1) }
+            | CONTINUE   { $$ = nuevaOpUnit($1, 'CONTINUE', this._$.first_line, this._$.first_column+1) }
+            | RETURN     { $$ = nuevaOpUnit($1, 'RETURN', this._$.first_line, this._$.first_column+1) }
+            | RETURN expresion  { $$ = nuevaOpUnit($1, 'RETURN', this._$.first_line, this._$.first_column+1, $2) }
+;
+
 sent_if: IF OPENPAREN expresion CLOSEPAREN bloque                   { $$ = sentenciaControl($3, 'sent_if', $5) }
         | IF OPENPAREN expresion CLOSEPAREN bloque ELSE bloque      { $$ = sentenciaControl($3, 'sent_if',$5, $7) }
         | IF OPENPAREN expresion CLOSEPAREN bloque ELSE sent_if     { $$ = sentenciaControl($3, 'sent_if',$5, $7) }
@@ -377,7 +358,7 @@ cases_list: cases_list case_statement { $1.push($2); $$ = $1; }
 ;
 
 case_statement: CASE expresion PUNTOS entrada                   { $$ = { case: $2, bloque: $4, breakval: false} }
-            | CASE expresion PUNTOS entrada BREAK PUNTOYCOMA    { $$ = { case: $2, bloque: $4, breakval: true} }
+            | CASE expresion PUNTOS entrada sent_transf    { $$ = { case: $2, bloque: $4, breakval: true} }
 ;
 
 default_case: DEFAULT PUNTOS entrada  { $$ = { case: 'DEFAULT', bloque: $3 } }
@@ -394,6 +375,9 @@ sent_for: FOR OPENPAREN declaracion_variable PUNTOYCOMA op_relacional PUNTOYCOMA
 
 actualizacion: ID INCREASE                  { $$ = nuevaOpUnit($1, 'INCREASE', this._$.first_line, this._$.first_column+1) }
             | ID DECREASE                   { $$ = nuevaOpUnit($1, 'DECREASE', this._$.first_line, this._$.first_column+1) }
+;
+
+native_function: TOLOWER OPENPAREN expresion CLOSEPAREN     { $$ = nuevaOpUnit($3, 'TOLOWER', this._$.first_line, this._$.first_column+1) }
 ;
 
 valor

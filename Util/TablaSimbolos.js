@@ -4,6 +4,7 @@ class TablaSimbolos {
     constructor() {
         this.tabla = {};
         this.arrays = {};
+        this.metodos = {};
     }
 
     agregarVariable(expresion) {
