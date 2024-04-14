@@ -1,3 +1,5 @@
+const e = require("express");
+
 function Expresion(expresion,consola=null)   {
     const tablaS = global.tablaSimbolos;
     const tiposValores = ['DOUBLE', 'ENTERO', 'CADENA', 'BOOL', 'CHAR', 'ID', 'ARRAY']
@@ -37,6 +39,35 @@ function Expresion(expresion,consola=null)   {
     }
     else if(expresion.tipoOperacion === 'INCREASE' || expresion.tipoOperacion === 'DECREASE'){
         tablaS.increasedecreaseValor(expresion.valor,expresion.tipoOperacion,expresion.linea,expresion.columna)
+    }
+    else if(expresion.tipoOperacion === 'TOLOWER'){
+        const tolower = require('../Util/NativeFunctions/Lower')
+        return tolower(expresion)
+    }
+    else if(expresion.tipoOperacion === 'TOUPPER'){
+        const toupper = require('../Util/NativeFunctions/Upper')
+        return toupper(expresion)
+    }
+    else if(expresion.tipoOperacion === 'ROUND'){
+        const round = require('../Util/NativeFunctions/Round')
+        return round(expresion)
+    }
+    else if(expresion.tipoOperacion === 'LENGTH'){
+        const Length = require('../Util/NativeFunctions/Length')
+        return Length(expresion)
+    }
+    else if(expresion.tipoOperacion === 'TYPEOF'){
+        const TypeOf = require('../Util/NativeFunctions/TypeOf')
+        return TypeOf(expresion)
+    }
+    else if(expresion.tipoOperacion === 'TOSTRING'){
+        const ToString = require('../Util/NativeFunctions/ToString')
+        return ToString(expresion)
+    }
+    else if(expresion.tipoOperacion === 'CSTR'){
+        console.log("ENTRO ACAJFLKSEJF")
+        const c_str = require('../Util/NativeFunctions/C_str')
+        return c_str(expresion)
     }
     else if(expresion.tipoOperacion === 'IFSHORT'){
         const OpTernario = require('../Util/Comparaciones/Ternario')

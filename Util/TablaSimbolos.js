@@ -8,9 +8,6 @@ class TablaSimbolos {
     }
 
     agregarVariable(expresion) {
-        console.log("DECLARACION VARIABLE-----------------")
-        console.log(expresion)
-        console.log(expresion.valor)
         if(expresion.valor === null){
             if(expresion.tipo === 'ENTERO'){
                 let obj = {
@@ -120,6 +117,10 @@ class TablaSimbolos {
                     this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite: expresion.size.valor };
                 } else {
                     let arraytemp = [];
+                    let tipoValor = expresion.valores?.tipoOperacion ?? 'valor por defecto';
+                    if (tipoValor === 'CSTR') {
+                        expresion.valores = Expresion(expresion.valores);
+                    }
                     expresion.valores.forEach(valor => {
                         arraytemp.push(valor);
                     });
@@ -163,6 +164,13 @@ class TablaSimbolos {
         }
         return null
     }
+
+    getArrayId(id){
+        if (this.arrays[id] !== undefined){
+            let array = this.arrays[id].valor;
+            return array;
+        }
+    }
     
     asignarValorArray(expresion){
         let tipoValor = expresion.valor?.tipoValor ?? 'valor por defecto';
@@ -180,6 +188,14 @@ class TablaSimbolos {
     clear(){
         this.tabla = {};
         this.arrays = {};
+    }
+
+    existeVariable(id) {
+        return this.tabla.hasOwnProperty(id);
+    }
+
+    existeArray(id) {
+        return this.arrays.hasOwnProperty(id);
     }
 
     getTabla() {

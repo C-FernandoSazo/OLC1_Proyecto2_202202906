@@ -32,9 +32,13 @@ function ValorExpresion(expresion)  {
             }
             return objB
         case 'ID' :
+            if (tablaS.existeArray(expresion.valor)){
+                var variableA = tablaS.getArrayId(expresion.valor)
+                console.log("ARREGLO", variableA)
+                return variableA;
+            }
             try {
-                console.log(tablaS);
-                console.log(expresion.valor)
+                console.log("PASA")
                 var variable = tablaS.getValor(expresion.valor);
                 console.log(variable) 
                 return variable
@@ -46,6 +50,7 @@ function ValorExpresion(expresion)  {
         case 'ARRAY' :
             try {
                 var variable = tablaS.getValorArray(expresion.valor, expresion.pos1, expresion.pos2);
+                console.log('variable del array ',variable)
                 return variable;
             } catch (error) {
                 console.error("Error al obtener la variable del array", expresion.valor);

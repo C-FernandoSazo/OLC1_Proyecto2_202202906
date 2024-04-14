@@ -1,8 +1,5 @@
 %{
     // Importar librerías y variables
-        const Aritmetica = require("../Util/Aritmetica");
-        const OpRelacional = require('../Util/Comparaciones/Relacionales');
-        const OpTernario = require('../Util/Comparaciones/Ternario');
         var cadena = '';
         var errores = [];
 %}
@@ -34,11 +31,13 @@
 "bool"                  { return 'BOOL'; }
 "char"                  { return 'CHAR'; }
 "std::string"           { return 'STD'; }
+"std::toString"         { return 'STS'; }
 "="                     { return 'IGUAL'; }
 ":"                     { return 'PUNTOS' }
 "true"                  { return 'TRUE'; }
 "false"                 { return 'FALSE'; }
 ","                     { return 'COMA'; }
+"."                     { return 'PUNTO'; }
 ";"                     { return 'PUNTOYCOMA'; }
 "+"                     { return 'SUMA'; }
 "-"                     { return 'RES'; }
@@ -67,6 +66,11 @@
 "continue"              { return 'CONTINUE'; }
 "return"                { return 'RETURN'; }
 "tolower"               { return 'TOLOWER'; }
+"toupper"               { return 'TOUPPER'; }
+"round"                 { return 'ROUND'; }
+"length"                { return 'LENGTH'; }
+"typeof"                { return 'TYPEOF'; }
+"c_str"                 { return 'CSTR'; }
 "do"                    { return 'DO'; }
 "while"                 { return 'WHILE'; }
 "for"                   { return 'FOR'; }
@@ -276,6 +280,9 @@ declaracion_array
     : tipo ID OPENCORCHETE CLOSECORCHETE IGUAL NEW tipo OPENCORCHETE expresion CLOSECORCHETE {
         $$ = instance_array($2, $1, $9, null, null, null, this._$.first_line, this._$.first_column+1, false);
     }
+    | tipo ID OPENCORCHETE CLOSECORCHETE IGUAL native_function {
+        $$ = instance_array($2, $1, null, $6, null, null, this._$.first_line, this._$.first_column+1, false);
+    }
     | tipo ID OPENCORCHETE CLOSECORCHETE OPENCORCHETE CLOSECORCHETE IGUAL NEW tipo OPENCORCHETE expresion CLOSECORCHETE OPENCORCHETE expresion CLOSECORCHETE {
         $$ = instance_array($2, $1, $11, null, $14, null, this._$.first_line, this._$.first_column+1, true);
     }
@@ -319,8 +326,7 @@ op_relacional
             | expresion ORMENORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MENORIGUALQUE', this._$.first_line, this._$.first_column+1) }   
             | expresion ORMAYOR expresion       { $$ = nuevaOpBinaria($1, $3, 'MAYORQUE', this._$.first_line, this._$.first_column+1) }  
             | expresion ORMAYORIGUAL expresion  { $$ = nuevaOpBinaria($1, $3, 'MAYORIGUALQUE', this._$.first_line, this._$.first_column+1) } 
-            | expresion INCOGNITA expresion PUNTOS expresion  { var result = OpTernario(nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1)) 
-                                                                $$ = nuevoValor(result.valor, result.tipo, this._$.first_line, this._$.first_column+1)}
+            | expresion INCOGNITA expresion PUNTOS expresion  { $$ = nuevaOpTernaria($1, $3, $5, 'IFSHORT', this._$.first_line, this._$.first_column+1) }
 ;
 
 op_logicos
@@ -378,6 +384,12 @@ actualizacion: ID INCREASE                  { $$ = nuevaOpUnit($1, 'INCREASE', t
 ;
 
 native_function: TOLOWER OPENPAREN expresion CLOSEPAREN     { $$ = nuevaOpUnit($3, 'TOLOWER', this._$.first_line, this._$.first_column+1) }
+                | TOUPPER OPENPAREN expresion CLOSEPAREN    { $$ = nuevaOpUnit($3, 'TOUPPER', this._$.first_line, this._$.first_column+1) }
+                | ROUND OPENPAREN expresion CLOSEPAREN      { $$ = nuevaOpUnit($3, 'ROUND', this._$.first_line, this._$.first_column+1) }
+                | valor PUNTO LENGTH OPENPAREN CLOSEPAREN   { $$ = nuevaOpUnit($1, 'LENGTH', this._$.first_line, this._$.first_column+1) }
+                | TYPEOF OPENPAREN expresion CLOSEPAREN     { $$ = nuevaOpUnit($3, 'TYPEOF', this._$.first_line, this._$.first_column+1) }
+                | STS OPENPAREN expresion CLOSEPAREN        { $$ = nuevaOpUnit($3, 'TOSTRING', this._$.first_line, this._$.first_column+1) }
+                | valor PUNTO CSTR OPENPAREN CLOSEPAREN     { $$ = nuevaOpUnit($1, 'CSTR', this._$.first_line, this._$.first_column+1) }
 ;
 
 valor

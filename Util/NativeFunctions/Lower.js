@@ -1,4 +1,4 @@
-const Expresion = require('C:/Users/Cesar/Documents/Programas/2024/OLC1_Proyecto2_202202906/Modelo/Expresion')
+const Expresion = require('../../Modelo/Expresion')
 
 function tolower(expresion){    
     let cadena = Expresion(expresion.valor)

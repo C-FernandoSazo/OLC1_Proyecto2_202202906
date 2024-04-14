@@ -9,12 +9,10 @@ function Aritmetica(operacion) {
     let tipoValor2 = operacion.valor2?.tipoValor ?? 'valor por defecto';
     if (tipoValor2 === 'ID' || tipoValor2 === 'ARRAY') {
         operacion.valor2 = Expresion(operacion.valor2);
-        console.log("Cambio \n", operacion.valor2)
     }
 
     let n1 = Expresion(operacion.valor1)
     let n2 = operacion.valor2 ? Expresion(operacion.valor2) : 0;
-    console.log(n1, n2)
     if (n1.tipoValor === 'CHAR' && typeof n2.valor === 'number') {
         n1.valor = n1.valor.charCodeAt(0);
     }
