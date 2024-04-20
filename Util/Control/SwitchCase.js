@@ -6,6 +6,7 @@ function SwitchCase(expresion,consola){
     var continuar = false;
     console.log("SWITCH------------------------------------")
     let condicion = Expresion(expresion.condicion);
+    //Recorrer array de cases
     expresion.bloque.forEach(element => {
         let elemento = Expresion(element.case)
         if (elemento.valor === condicion.valor || continuar){

@@ -1,7 +1,6 @@
 %{
     // Importar librerías y variables
         var cadena = '';
-        var errores = [];
 %}
 %lex // Inicia parte léxica
 
@@ -74,6 +73,7 @@
 "do"                    { return 'DO'; }
 "while"                 { return 'WHILE'; }
 "for"                   { return 'FOR'; }
+"void"                  { return 'VOID'; }
 
 // Expresiones Regulares
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
@@ -102,7 +102,7 @@
 
 <<EOF>>                 return 'EOF';
 
-.		 {  errores.push({tipo: "Lexico", error: 'El simbolo "'+yytext+'" no pertenece al lenguaje', linea: yylloc.first_line, columna : yylloc.first_column+1})  }
+.		 {  global.reportes.agregarError({tipo: "Lexico", error: 'El simbolo "'+yytext+'" no pertenece al lenguaje', linea: yylloc.first_line, columna : yylloc.first_column+1})  }
 
 // Finaliza parte de Léxica
 /lex
@@ -151,6 +151,26 @@
             tipoOperacion: tipoOperacion,
             linea: linea,
             columna: columna
+        }
+        return obj;
+    }
+
+    function nuevaFunction(id, parametros, instrucciones, tipoOperacion, retorno){
+        let obj = {
+            id: id,
+            parametros: parametros, 
+            instrucciones: instrucciones,
+            tipoOperacion: tipoOperacion,
+            retorno: retorno
+        }
+        return obj;
+    }
+
+    function newCall(id, parametros) {
+        let obj = {
+            id: id,
+            parametros: parametros,
+            tipoOperacion: "CALL"
         }
         return obj;
     }
@@ -244,15 +264,15 @@
 
 %%
 
-init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1, errores: errores  }; 
-                        errores = []; return retorno; }
+init : entrada EOF  { console.log("Entrada procesada con éxito."); retorno = { instrucciones: $1 }; return retorno; }
 ;    
 
 entrada : entrada sentencia { $1.push($2); $$=$1; }
         | sentencia         { $$=[$1]; }
 ;
 
-sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
+sentencia : declaracion_functions              { $$ = $1; }
+        | declaracion_variable PUNTOYCOMA      { $$ = $1; }
         | declaracion_array PUNTOYCOMA         { $$ = $1; }
         | expresion PUNTOYCOMA                 { $$ = $1; }
         | sent_transf PUNTOYCOMA               { $$ = $1; }
@@ -263,12 +283,12 @@ sentencia : declaracion_variable PUNTOYCOMA    { $$ = $1; }
         | sent_dowhile PUNTOYCOMA              { $$ = $1; }
         | print PUNTOYCOMA                     { $$ = $1; }
         | error PUNTOYCOMA    { console.log("Error al procesar la entrada."); 
-    errores.push({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
+    global.reportes.agregarError({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
 ;
 
 declaracion_variable
-    : tipo lista_ids                          { $$ = instance_var($2, $1, this._$.first_line, this._$.first_column); }
-    | tipo lista_ids IGUAL expresion              { $$ = instance_var($2, $1, this._$.first_line, this._$.first_column, $4); }
+    : tipo lista_ids                          { $$ = instance_var($2, $1, this._$.first_line, this._$.first_column+1); }
+    | tipo lista_ids IGUAL expresion              { $$ = instance_var($2, $1, this._$.first_line, this._$.first_column+1, $4); }
 ;
 
 lista_ids
@@ -297,6 +317,20 @@ declaracion_array
     | ID OPENCORCHETE expresion CLOSECORCHETE OPENCORCHETE expresion CLOSECORCHETE IGUAL expresion  { $$ = modify_array($1, $9, $3, $6) }
 ;
 
+declaracion_functions: VOID ID OPENPAREN parametros CLOSEPAREN bloque   { $$ = nuevaFunction($2, $4, $6, "METODO", null) }
+                    | VOID ID OPENPAREN CLOSEPAREN bloque   { $$ = nuevaFunction($2, null, $5, "METODO", null) }
+                    | tipo ID OPENPAREN parametros CLOSEPAREN bloque { $$ = nuevaFunction($2, $4, $6, "FUNCION", $1) }
+                    | tipo ID OPENPAREN CLOSEPAREN bloque        { $$ = nuevaFunction($2, null, $5, "FUNCION", $1) }
+;
+
+parametros: parametros COMA tipo ID     { $$ = $1.push(instance_var([$4], $3, this._$.first_line, this._$.first_column+1)); $$ = $1;}
+            | tipo ID                   { $$ = [instance_var([$2], $1, this._$.first_line, this._$.first_column+1)]}
+;
+
+llamada: ID OPENPAREN lista_values CLOSEPAREN   { $$ = newCall($1, $3)}
+        | ID OPENPAREN CLOSEPAREN               { $$ = newCall($1, null)}
+;
+
 tipo
     : INT       { $$ = 'ENTERO'; }
     | DOUBLE    { $$ = 'DOUBLE'; }
@@ -316,6 +350,7 @@ expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA'
             | native_function   { $$ = $1; }
             | op_relacional     { $$ = $1; }
             | op_logicos        { $$ = $1; }
+            | llamada           { $$ = $1; }
             | valor             { $$ = $1; }
 ;
 
@@ -364,7 +399,7 @@ cases_list: cases_list case_statement { $1.push($2); $$ = $1; }
 ;
 
 case_statement: CASE expresion PUNTOS entrada                   { $$ = { case: $2, bloque: $4, breakval: false} }
-            | CASE expresion PUNTOS entrada sent_transf    { $$ = { case: $2, bloque: $4, breakval: true} }
+            | CASE expresion PUNTOS entrada BREAK              { $$ = { case: $2, bloque: $4, breakval: true} }
 ;
 
 default_case: DEFAULT PUNTOS entrada  { $$ = { case: 'DEFAULT', bloque: $3 } }

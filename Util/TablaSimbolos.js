@@ -17,7 +17,7 @@ class TablaSimbolos {
                     columna: expresion.columna
                 }
                 expresion.valor = obj;
-            } else if(tipo === 'DOUBLE'){
+            } else if(expresion.tipo === 'DOUBLE'){
                 let obj = {
                     valor: 0.0,
                     tipoValor: 'DOUBLE',
@@ -25,7 +25,7 @@ class TablaSimbolos {
                     columna: expresion.columna
                 }
                 expresion.valor = obj;
-            } else if(tipo === 'BOOL') {
+            } else if(expresion.tipo === 'BOOL') {
                 let obj = {
                     valor: true,
                     tipoValor: 'BOOL',
@@ -33,7 +33,7 @@ class TablaSimbolos {
                     columna: expresion.columna
                 }
                 expresion.valor = obj;
-            } else if(tipo === 'CHAR') {
+            } else if(expresion.tipo === 'CHAR') {
                 let obj = {
                     valor: '0',
                     tipoValor: 'CHAR',
@@ -41,7 +41,7 @@ class TablaSimbolos {
                     columna: expresion.columna
                 }
                 expresion.valor = obj;
-            } else if(tipo === 'CADENA') {
+            } else if(expresion.tipo === 'CADENA') {
                 let obj = {
                     valor: "",
                     tipoValor: 'CADENA',
@@ -77,7 +77,7 @@ class TablaSimbolos {
 
     asignarValor(id, valor, linea, columna) {
         if (this.tabla[id] !== undefined) {
-            this.tabla[id].valor.valor = valor;
+            this.tabla[id].valor = valor;
             return { tipo: 'asignacion', id, valor, linea, columna };
         } else {
             console.error(`La variable ${id} no está declarada.`);
@@ -100,6 +100,7 @@ class TablaSimbolos {
 
     getValor(id) {
         if (this.tabla[id] !== undefined) {
+            console.log("RETORNO ",this.tabla[id].valor)
             return this.tabla[id].valor;
         } else {
             console.error(`La variable ${id} no está declarada.`);
@@ -188,6 +189,7 @@ class TablaSimbolos {
     clear(){
         this.tabla = {};
         this.arrays = {};
+        this.metodos = {};
     }
 
     existeVariable(id) {
@@ -204,6 +206,87 @@ class TablaSimbolos {
 
     getArray(){
         return this.arrays;
+    }
+
+    // Guardado de Metodos y Funciones
+
+    agregarMetodo(id, instrucciones, parametros){
+        if (this.metodos[id] === undefined) {
+            this.metodos[id] = { instrucciones: instrucciones, parametros: parametros };
+            console.log("Metodo Guardado")
+        } else {
+            console.error(`El metodo ${id} ya ha sido declarado`);
+        }
+    }
+
+    getMetodo(id){
+        if (this.metodos[id] !== undefined){
+            return this.metodos[id]
+        } else {
+            console.error(`El metodo ${id} no ha sido declarado`)
+            return undefined
+        }
+    }
+
+    //Variables Auxiliares para metodos
+
+    agregarVariableAux(expresion) {
+        console.log("Variable aux, ",expresion)
+        if(expresion.valor === null){
+            if(expresion.tipo === 'ENTERO'){
+                let obj = {
+                    valor: 0,
+                    tipoValor: 'ENTERO',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
+            } else if(expresion.tipo === 'DOUBLE'){
+                let obj = {
+                    valor: 0.0,
+                    tipoValor: 'DOUBLE',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
+            } else if(expresion.tipo === 'BOOL') {
+                let obj = {
+                    valor: true,
+                    tipoValor: 'BOOL',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
+            } else if(expresion.tipo === 'CHAR') {
+                let obj = {
+                    valor: '0',
+                    tipoValor: 'CHAR',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
+            } else if(expresion.tipo === 'CADENA') {
+                let obj = {
+                    valor: "",
+                    tipoValor: 'CADENA',
+                    linea: expresion.linea,
+                    columna: expresion.columna
+                }
+                expresion.valor = obj;
+            }
+        } else {
+            expresion.valor = Expresion(expresion.valor)
+        }
+        if (this.tabla[expresion.ids] === undefined) {
+            this.tabla[expresion.ids] = { tipo: expresion.tipo, valor: expresion.valor };
+        } else {
+            console.error(`La variable ${expresion.ids} ya está declarada, cambiando su valor...`);
+            console.log("antes ",this.tabla[expresion.ids].valor)
+            this.tabla[expresion.ids].valor = expresion.valor;
+            console.log("despues ",this.tabla[expresion.ids].valor)
+        }
+        console.log("SE TEMRINO DE DECLARAR LA VARIABLE--------------------")
+        return null;
     }
 }
 

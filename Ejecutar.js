@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
 // Post recibir el texto de la consola y analizarlo con el parser
 app.post('/compile', (req, res) => {
     let tablaSimbolos = global.tablaSimbolos
+    global.reportes.clear()
     tablaSimbolos.clear();
     var input = req.body.input;
     var result = parser.parse(input);
@@ -28,6 +29,7 @@ app.post('/compile', (req, res) => {
     var ast = new Procesador(result.instrucciones);
     ast.analizarInst();
     console.log(tablaSimbolos)
+    global.reportes.generarTablaErrores()
     res.send({ output: ast.getConsola() });
     });
 

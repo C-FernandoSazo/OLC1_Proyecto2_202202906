@@ -1,5 +1,5 @@
 function ValorExpresion(expresion)  {
-    let tablaS = global.tablaSimbolos;
+    const tablaS = global.tablaSimbolos;
     switch(expresion.tipoValor){
         case 'CADENA':
             let objC = {
@@ -32,15 +32,15 @@ function ValorExpresion(expresion)  {
             }
             return objB
         case 'ID' :
+            console.log('----------------ID-----------------------')
             if (tablaS.existeArray(expresion.valor)){
                 var variableA = tablaS.getArrayId(expresion.valor)
                 console.log("ARREGLO", variableA)
                 return variableA;
             }
             try {
-                console.log("PASA")
                 var variable = tablaS.getValor(expresion.valor);
-                console.log(variable) 
+                console.log("Variable: ---",variable) 
                 return variable
             } catch (error) {
                 console.error("Error al obtener la variable:", expresion.valor);

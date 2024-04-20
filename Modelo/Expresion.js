@@ -14,6 +14,14 @@ function Expresion(expresion,consola=null)   {
         }
         return obj;
     }
+    else if(expresion.tipoOperacion === 'METODO' || expresion.tipoOperacion === 'FUNCION'){
+        const Metodo = require('../Util/Functions/Metodos')
+        return Metodo(expresion)
+    }
+    else if(expresion.tipoOperacion === 'CALL'){
+        const Call = require('../Util/Functions/Call')
+        return Call(expresion, consola)
+    }
     else if(tiposValores.includes(expresion.tipoValor)) {
         const ValorExpresion = require("../Modelo/Valor");
         return ValorExpresion(expresion);

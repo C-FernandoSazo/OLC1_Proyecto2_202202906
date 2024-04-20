@@ -4,8 +4,12 @@ class Reportes {
     constructor(){
         this.errores = [];
     }
-    
-    generarTablaErrores(errores) {
+
+    agregarError(error){
+        this.errores.push(error);
+    }
+
+    generarTablaErrores() {
         let html = `
             <!DOCTYPE html>
             <html lang="es">
@@ -41,7 +45,7 @@ class Reportes {
                 </thead>
                 <tbody>`;
 
-        errores.forEach((error, index) => {
+        this.errores.forEach((error, index) => {
             html += `
                 <tr>
                     <td>${index + 1}</td>
@@ -61,6 +65,10 @@ class Reportes {
         `;
 
         fs.writeFileSync('reporteDeErrores.html', html); 
+    }
+
+    clear(){
+        this.errores = [];
     }
 }
 

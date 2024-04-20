@@ -1,9 +1,9 @@
 const Expresion = require('../../Modelo/Expresion')
 
 function printConsole(expresion,consola){
-    console.log(expresion)
+    console.log("Impresion: ",expresion)
     let salida = Expresion(expresion.valor)
-    console.log(salida)
+    console.log("SALIDA ",salida)
     if (salida.tipoValor === 'BOOL'){
         salida.valor = salida.valor ? "true":"false"
     }

@@ -2,17 +2,20 @@ const Expresion = require("../Modelo/Expresion");
 
 function Aritmetica(operacion) {
     console.log("ENTRO A ARITMETICA--------------------------")
+    let n1, n2;
     let tipoValor = operacion.valor1?.tipoValor ?? 'valor por defecto';
     if (tipoValor === 'ID' || tipoValor === 'ARRAY') {
-        operacion.valor1 = Expresion(operacion.valor1);
+        const opValor1 = Expresion(operacion.valor1);
+        n1 = Expresion(opValor1);
     }
     let tipoValor2 = operacion.valor2?.tipoValor ?? 'valor por defecto';
     if (tipoValor2 === 'ID' || tipoValor2 === 'ARRAY') {
-        operacion.valor2 = Expresion(operacion.valor2);
+        const opValor2 = Expresion(operacion.valor2);
+        n2 = Expresion(opValor2);
     }
 
-    let n1 = Expresion(operacion.valor1)
-    let n2 = operacion.valor2 ? Expresion(operacion.valor2) : 0;
+    n1 = Expresion(operacion.valor1)
+    n2 = operacion.valor2 ? Expresion(operacion.valor2) : 0;
     if (n1.tipoValor === 'CHAR' && typeof n2.valor === 'number') {
         n1.valor = n1.valor.charCodeAt(0);
     }
