@@ -1,0 +1,15 @@
+digraph G {
+  node [shape=record];
+  rankdir=TB;
+  nodo0 [label="ID: main\nOperación: CALL"];
+  nodo1 [label="ID: main\nOperación: METODO"];
+  nodo0 -> nodo1;
+  nodo2 [label="ID: tablaMultiplicar\nOperación: METODO"];
+  nodo1 -> nodo2;
+  nodo3 [label="ID: mcd\nOperación: FUNCION"];
+  nodo2 -> nodo3;
+  nodo4 [label="ID: recursividadBasica\nOperación: METODO"];
+  nodo3 -> nodo4;
+  nodo5 [label="ID: AnalizarArreglo\nOperación: METODO"];
+  nodo4 -> nodo5;
+}

@@ -74,6 +74,7 @@
 "while"                 { return 'WHILE'; }
 "for"                   { return 'FOR'; }
 "void"                  { return 'VOID'; }
+"execute"                { return 'EXECUTE'; }
 
 // Expresiones Regulares
 ([a-zA-Z])[a-zA-Z0-9_]* { console.log('Token: ID, Valor: ' + yytext); return 'ID'; }    //Nombre de variables
@@ -98,6 +99,8 @@
 <character>"\\t"               { return 'CARACTER'; }
 <character>"\\r"               { return 'CARACTER'; }
 <character>[^\\\']             { return 'CARACTER'; }
+<character>\\\"                { return 'CARACTER'; }
+<character>\\\'                { return 'CARACTER'; } 
 <character>\'                  { this.popState(); }
 
 <<EOF>>                 return 'EOF';
@@ -117,6 +120,15 @@
             columna: columna,
             pos1: pos1,
             pos2: pos2
+        }
+        return obj;
+    }
+
+    function asignarValor(id, valor) {
+        let obj = {
+            id: id,
+            valor: valor,
+            tipoOperacion: "ASIGNACION"
         }
         return obj;
     }
@@ -166,11 +178,12 @@
         return obj;
     }
 
-    function newCall(id, parametros) {
+    function newCall(id, parametros, execute) {
         let obj = {
             id: id,
             parametros: parametros,
-            tipoOperacion: "CALL"
+            tipoOperacion: "CALL",
+            execute: execute
         }
         return obj;
     }
@@ -202,7 +215,7 @@
             id: id,
             tipo: tipo,
             size: size,
-            valores: valores,
+            valor: valores,
             size2: size2,
             valores2: valores2,
             tipoOperacion: 'declaracion_array',
@@ -282,6 +295,8 @@ sentencia : declaracion_functions              { $$ = $1; }
         | sent_for                             { $$ = $1; }
         | sent_dowhile PUNTOYCOMA              { $$ = $1; }
         | print PUNTOYCOMA                     { $$ = $1; }
+        | ID IGUAL expresion PUNTOYCOMA        { $$ = asignarValor($1, $3); }
+        | EXECUTE llamada PUNTOYCOMA           { $2.execute = true; $$ = $2; }
         | error PUNTOYCOMA    { console.log("Error al procesar la entrada."); 
     global.reportes.agregarError({tipo: "Sintactico", error: $1, linea: this._$.first_line, columna : this._$.first_column}); }
 ;
@@ -323,12 +338,16 @@ declaracion_functions: VOID ID OPENPAREN parametros CLOSEPAREN bloque   { $$ = n
                     | tipo ID OPENPAREN CLOSEPAREN bloque        { $$ = nuevaFunction($2, null, $5, "FUNCION", $1) }
 ;
 
-parametros: parametros COMA tipo ID     { $$ = $1.push(instance_var([$4], $3, this._$.first_line, this._$.first_column+1)); $$ = $1;}
-            | tipo ID                   { $$ = [instance_var([$2], $1, this._$.first_line, this._$.first_column+1)]}
+parametros: parametros COMA comb_parametros      { $$ = $1.push($3); $$ = $1; }
+            | comb_parametros                   { $$ = [$1]; }
 ;
 
-llamada: ID OPENPAREN lista_values CLOSEPAREN   { $$ = newCall($1, $3)}
-        | ID OPENPAREN CLOSEPAREN               { $$ = newCall($1, null)}
+comb_parametros: tipo ID OPENCORCHETE CLOSECORCHETE  { $$ = instance_array($2, $1, null, null, null, null, this._$.first_line, this._$.first_column+1, false); }
+                | tipo ID           { $$ = instance_var([$2], $1, this._$.first_line, this._$.first_column+1); }  
+;   
+
+llamada: ID OPENPAREN lista_expresion CLOSEPAREN   { $$ = newCall($1, $3, false)}
+        | ID OPENPAREN CLOSEPAREN               { $$ = newCall($1, null, false)}
 ;
 
 tipo
@@ -352,6 +371,10 @@ expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA'
             | op_logicos        { $$ = $1; }
             | llamada           { $$ = $1; }
             | valor             { $$ = $1; }
+;
+
+lista_expresion : lista_expresion COMA expresion  { $1.push($3); $$ = $1; }
+            | expresion     { $$ = [$1]; }
 ;
 
 op_relacional

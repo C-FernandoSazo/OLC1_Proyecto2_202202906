@@ -67,6 +67,97 @@ class Reportes {
         fs.writeFileSync('reporteDeErrores.html', html); 
     }
 
+    generarTablaSimbolos(){
+        let tablaS = global.tablaSimbolos;
+        let tabla = tablaS.getTabla();
+        console.log(tabla)
+        let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Reporte de Simbolos</title>
+            <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            </style>
+        </head>
+        <body>
+            <h2>Reporte de Simbolos</h2>
+            <table>
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        for (const id in tabla) {
+            const simbolo = tabla[id];
+            html += `
+                <tr>
+                    <td>${id}</td>
+                    <td>${simbolo.tipo}</td>
+                    <td>${simbolo.valor.valor}</td>
+                </tr>
+            `;
+        }
+
+    html += `
+        </tbody>
+        </table>
+        </body>
+        </html>
+    `;
+
+    fs.writeFileSync('reporteDeSimbolos.html', html); 
+    }
+
+    generarReporteAST(instrucciones) {
+        let dot = 'digraph G {\n';
+        dot += '  node [shape=record];\n';
+        dot += '  rankdir=TB;\n';  // Orientación horizontal de los nodos
+    
+        instrucciones.forEach((instruccion, index) => {
+            let label = `ID: ${instruccion.id}\\nOperación: ${instruccion.tipoOperacion}`;
+            dot += `  nodo${index} [label="${label}"];\n`;
+            if (index > 0) {
+                dot += `  nodo${index - 1} -> nodo${index};\n`;
+            }
+        });
+    
+        dot += '}';
+    
+        // Escribir el archivo DOT
+        fs.writeFileSync('ast.dot', dot);
+        console.log('Archivo DOT generado con éxito.');
+        this.generarImagenDot();  // Llama a la función para generar la imagen
+    }
+
+    generarImagenDot() {
+        const { exec } = require('child_process');
+        const cmd = 'dot -Tpng ast.dot -o ast.png';
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error al ejecutar Graphviz: ${error}`);
+                return;
+            }
+            console.log('Imagen generada con éxito: ast.png');
+        });
+    }
+
     clear(){
         this.errores = [];
     }

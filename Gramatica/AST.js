@@ -1,4 +1,5 @@
 const Expresion = require("../Modelo/Expresion");
+global.EXECUTE = false;
 
 class AST {
 
@@ -8,6 +9,9 @@ class AST {
     }
 
     analizarInst() {
+        this.instrucciones.forEach(instruccion => {
+            Expresion(instruccion,this.consola,true);
+        });
         this.instrucciones.forEach(instruccion => {
             Expresion(instruccion,this.consola);
         });

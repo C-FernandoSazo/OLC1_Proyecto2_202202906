@@ -118,14 +118,15 @@ class TablaSimbolos {
                     this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite: expresion.size.valor };
                 } else {
                     let arraytemp = [];
-                    let tipoValor = expresion.valores?.tipoOperacion ?? 'valor por defecto';
+                    let tipoValor = expresion.valor?.tipoOperacion ?? 'valor por defecto';
                     if (tipoValor === 'CSTR') {
-                        expresion.valores = Expresion(expresion.valores);
+                        expresion.valor = Expresion(expresion.valor);
                     }
-                    expresion.valores.forEach(valor => {
-                        arraytemp.push(valor);
+                    expresion.valor.forEach(valor => {
+                        let val = Expresion(valor)
+                        arraytemp.push(val);
                     });
-                    this.arrays[expresion.id] = {tipo: expresion.tipo, valor: arraytemp, limite: expresion.valores.length };
+                    this.arrays[expresion.id] = {tipo: expresion.tipo, valor: arraytemp, limite: expresion.valor.length };
                 }
             // Arreglo de Dos dimensiones
             } else {
@@ -137,11 +138,13 @@ class TablaSimbolos {
                 } else {
                     let arraytmp1 = [];
                     let arraytmp2 = [];
-                    expresion.valores.forEach(valor => {
-                        arraytmp1.push(valor);
+                    expresion.valor.forEach(valor => {
+                        let val = Expresion(valor)
+                        arraytmp1.push(val);
                     });
                     expresion.valores2.forEach(valor => {
-                        arraytmp2.push(valor);
+                        let val = Expresion(valor)
+                        arraytmp2.push(val);
                     });
                     let array = [arraytmp1,arraytmp2];
                     this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite1: arraytmp1.length, limite2: arraytmp2.length};
@@ -154,12 +157,37 @@ class TablaSimbolos {
     }
 
     getValorArray(id, p1, p2){
+        console.log("----ENTRO A GET VALOR ARRAY-----")
         if (this.arrays[id] !== undefined){
             let array = this.arrays[id].valor
+            console.log("p1: ",p1)
+            console.log("p2: ",p2)
             console.log("Arreglo: \n",array)
             if (p2 === null){
+                if (p1.tipoValor === 'ID' || p1.tipoValor === 'ARRAY') {
+                    const opValor1 = Expresion(p1);
+                    let n1 = Expresion(opValor1);
+                    return array[n1.valor]
+                }
                 return array[p1.valor]
             } else {
+                if((p1.tipoValor === 'ID' || p1.tipoValor === 'ARRAY') && (p2.tipoValor === 'ID' || p2.tipoValor === 'ARRAY')){
+                    const opValor1 = Expresion(p1);
+                    let n1 = Expresion(opValor1);
+                    const opValor2 = Expresion(p2);
+                    let n2 = Expresion(opValor2);
+                    return array[n1.valor][n2.valor]
+                }
+                else if (p1.tipoValor === 'ID' || p1.tipoValor === 'ARRAY') {
+                    const opValor1 = Expresion(p1);
+                    let n1 = Expresion(opValor1);
+                    return array[n1.valor][p2.valor]
+                }
+                else if (p2.tipoValor === 'ID' || p2.tipoValor === 'ARRAY') {
+                    const opValor2 = Expresion(p2);
+                    let n2 = Expresion(opValor2);
+                    return array[p1.valor][n2.valor]
+                }
                 return array[p1.valor][p2.valor]
             }
         }

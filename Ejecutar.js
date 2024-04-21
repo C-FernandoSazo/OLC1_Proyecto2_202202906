@@ -30,6 +30,8 @@ app.post('/compile', (req, res) => {
     ast.analizarInst();
     console.log(tablaSimbolos)
     global.reportes.generarTablaErrores()
+    global.reportes.generarTablaSimbolos()
+    global.reportes.generarReporteAST(result.instrucciones)
     res.send({ output: ast.getConsola() });
     });
 

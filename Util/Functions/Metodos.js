@@ -6,7 +6,8 @@ function Metodo(expresion){
     console.log("Parametros ",expresion.parametros)
     if (expresion.parametros !== null){
         expresion.parametros.forEach(element => {
-            tablaS.agregarVariableAux(element);
+            console.log("ELEMENTO METODO: ", element)
+            Expresion(element)
         });
     }
     tablaS.agregarMetodo(expresion.id,expresion.instrucciones, expresion.parametros, expresion.retorno);
