@@ -16,11 +16,23 @@ function OpLogic(expresion){
     n2 = expresion.valor2 ? Expresion(expresion.valor2) : 0;
     switch(expresion.tipoOperacion){
         case 'AND':
-            return n1.valor && n2.valor
+            let obj = {
+                valor: n1.valor && n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return obj
         case 'OR':
-            return n1.valor || n2.valor
+            let obj2 = {
+                valor: n1.valor || n2.valor,
+                tipoValor: 'BOOL'
+            }
+            return obj2
         case 'NOT':
-            return !n1.valor
+            let obj3 = {
+                valor: !n1.valor,
+                tipoValor: 'BOOL'
+            }
+            return obj3
     }
 }
 

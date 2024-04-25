@@ -12,13 +12,16 @@ function Expresion(expresion,consola=null,pasada=false)   {
             const Metodo = require('../Util/Functions/Metodos')
             return Metodo(expresion)
         }
+        else if(tiposValores.includes(expresion.tipoValor)) {
+            const ValorExpresion = require("../Modelo/Valor");
+            return ValorExpresion(expresion);
+        }
         else if(expresion.tipoOperacion === 'declaracion_var'){
             console.log("VA ENTRAR A AGREGAR VARIBLE")
             return tablaS.agregarVariable(expresion);
         } 
-        else if(expresion.tipoOperacion === 'declaracion_var'){
-            console.log("VA ENTRAR A AGREGAR VARIBLE")
-            return tablaS.agregarVariable(expresion);
+        else if(expresion.tipoOperacion === 'declaracion_array'){
+            return tablaS.agregarArray(expresion);
         }
     } else {
         if (!global.EXECUTE){
