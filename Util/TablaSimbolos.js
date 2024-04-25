@@ -113,7 +113,7 @@ class TablaSimbolos {
         if (this.arrays[expresion.id] === undefined){
             // Arreglo de Una dimension
             if (!expresion.cuadrada){
-                if (expresion.size !== null){
+                if (expresion.size !== null || expresion.valor === null){
                     let array = [];
                     this.arrays[expresion.id] = { tipo: expresion.tipo, valor: array, limite: expresion.size.valor };
                 } else {

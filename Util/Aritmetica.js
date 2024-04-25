@@ -29,6 +29,7 @@ function Aritmetica(operacion) {
                 (typeof n1.valor === 'boolean' && n2.tipoValor === 'CHAR') ||
                 (n1.tipoValor === 'CHAR' && typeof n2.valor === 'boolean'))  {
                     console.log('Operacion no permitida ', operacion);
+                    global.reportes.agregarError({tipo: "Semantico", error: "Operacion no permitida", linea: operacion.linea, columna : expresion.columna}); 
                     return undefined
             } else {
                 let obj = {
@@ -82,6 +83,22 @@ function Aritmetica(operacion) {
                 let obj = {
                     valor: n1.valor % n2.valor,
                     tipoValor: Combinaciones(n1.tipoValor, n2.tipoValor, 'MOD')
+                }
+                return obj;
+            }
+        case 'NEGATIVO':
+            if (n1.tipoValor === 'CADENA' || n2.tipoValor === 'CADENA') {
+                console.log('No se puede restar una cadena de texto');
+                return undefined
+            } else if ((typeof n1.valor === 'boolean' && typeof n2.valor === 'boolean') || (n1.tipoValor === 'CHAR' && n2.tipoValor === 'CHAR')
+            || (typeof n1.valor === 'boolean' && n2.tipoValor === 'CHAR') ||
+            (n1.tipoValor === 'CHAR' && typeof n2.valor === 'boolean'))  {
+                console.log('Operacion no permitida ', operacion);
+                return undefined
+            }  else {
+                let obj = {
+                    valor: n2.valor - n1.valor,
+                    tipoValor: Combinaciones(n2.tipoValor, n1.tipoValor, 'RESTA')
                 }
                 return obj;
             }

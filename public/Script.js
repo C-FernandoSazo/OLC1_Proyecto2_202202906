@@ -25,21 +25,19 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const content = e.target.result;
-            // Coloca el contenido en la consola de entrada
-            document.getElementById('consola1').innerText = content;
+            // Actualiza el contenido en el editor de CodeMirror de consola1
+            editorConsola1.setValue(content);
         };
         reader.readAsText(file);
     }
 });
 
 document.getElementById('guardarArchivo').addEventListener('click', function() {
-    const texto = document.getElementById('consola1').innerText; // O innerHTML/textContent según tu caso
+    const texto = editorConsola1.getValue(); // Obtiene el texto del editor de CodeMirror
     const nombreArchivo = 'archivo.sc';
 
-    // Crear un Blob con el contenido de la entrada
     const blob = new Blob([texto], {type: 'text/plain'});
 
-    // Crear un enlace y descargar el archivo
     const enlace = document.createElement('a');
     enlace.download = nombreArchivo;
     enlace.href = window.URL.createObjectURL(blob);
@@ -47,8 +45,6 @@ document.getElementById('guardarArchivo').addEventListener('click', function() {
 
     document.body.appendChild(enlace);
     enlace.click();
-
-    // Limpiar y remover el enlace
     document.body.removeChild(enlace);
 });
 
@@ -57,7 +53,7 @@ document.getElementById('crearArchivo').addEventListener('click', function() {
 });
 
 document.getElementById("botonEjecutar").addEventListener("click", function() {
-    const contenidoConsola = document.getElementById('consola1').innerText;
+    const contenidoConsola = editorConsola1.getValue(); // Obtiene el contenido desde CodeMirror
     fetch('http://localhost:3080/compile', {
         method: 'POST',
         headers: {
@@ -67,14 +63,69 @@ document.getElementById("botonEjecutar").addEventListener("click", function() {
     })
     .then(response => response.json())
     .then(data => {
-        // Respuesta del servidor
-        document.getElementById('consola2').innerText = data.output;  // Mostrar la salida en la consola2
+        // Muestra la salida en el editor de CodeMirror de consola2
+        editorConsola2.setValue(data.output);
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('consola2').innerText = 'Error al procesar la solicitud.';
+        editorConsola2.setValue('Error al procesar la solicitud.');
     });
 });
+
+
+// Mostrar el menú de reportes
+document.getElementById('botonReportes').addEventListener('click', function(event) {
+    var displayStatus = document.getElementById('menuReportes').style.display;
+    document.getElementById('menuReportes').style.display = displayStatus === 'block' ? 'none' : 'block';
+    event.stopPropagation(); // Previene la propagación para evitar que se oculte inmediatamente
+});
+
+// Función para ocultar el menú de reportes cuando se hace clic fuera de él
+document.addEventListener('click', function() {
+    document.getElementById('menuReportes').style.display = 'none';
+});
+
+// Previene el cierre del menú de reportes al hacer clic dentro
+document.getElementById('menuReportes').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+// Añadir funcionalidad a las opciones de reporte
+document.getElementById('reporteSimbolos').addEventListener('click', function() {
+    window.open('ReporteDeSimbolos.html', '_blank');
+    alert('Mostrando reporte de tabla de símbolos.');
+});
+
+document.getElementById('reporteErrores').addEventListener('click', function() {
+    window.open('ReporteDeErrores.html', '_blank');
+    alert('Mostrando reporte de errores.');
+});
+
+document.getElementById("reporteAST").addEventListener('click', function() {
+    var panel = document.getElementById("panelAST");
+    var imagenAST = document.getElementById("imagenAST");
+    if (panel.style.display === "none") {
+        // Cargar la imagen si no se ha cargado antes o si quieres actualizarla cada vez
+        imagenAST.src = 'ast.png'; // Asegúrate de que la ruta a la imagen es correcta
+        panel.style.display = "block";
+    } else {
+        panel.style.display = "none";
+    }
+});
+
+// Cerrar el panel si se hace clic fuera de él
+document.addEventListener('click', function(event) {
+    var panel = document.getElementById("panelAST");
+    if (event.target.id !== "reporteAST" && event.target.closest("#panelAST") === null) {
+        panel.style.display = "none";
+    }
+});
+
+// Asegúrate de detener la propagación del clic en el panel para evitar que se cierre inadvertidamente
+document.getElementById("panelAST").addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
 
 
 

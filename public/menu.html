@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consolas de Comando</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/theme/material-darker.min.css">
 </head>
 <body>
     <div class="barra-herramientas">
@@ -16,28 +18,49 @@
         </div>
         <button id="botonEjecutar">Ejecutar</button>
         <button id="botonReportes">Reportes</button>
+        <div id="menuReportes" class="menu-archivo" style="display: none;">
+            <div id="reporteSimbolos">Reporte de Tabla de Símbolos</div>
+            <div id="reporteErrores">Reporte de Errores</div>
+            <div id="reporteAST">Reporte AST</div>
+        </div>
         <!-- Input de archivo oculto para cargar archivos .cs -->
         <input type="file" id="fileInput" accept=".sc" style="display: none;">
     </div>
-    
-    
+
+    <div id="panelAST" class="panel-ast" style="display: none;">
+        <img id="imagenAST" src="" alt="AST Visualization" style="max-width: 100%; border: 1px solid #ccc; padding: 10px;">
+    </div>   
+
     <div class="contenedor">
         <div class="consola-contenedor">
             <h2>Entrada</h2>
-            <div class="consola editable" id="consola1" contenteditable="true" spellcheck="false">
-
-            </div>
+            <textarea id="consola1" class="consola editable"></textarea>
         </div>
         <div class="consola-contenedor">
             <h2>Consola</h2>
-            <div class="consola" id="consola2">
-
-            </div>
+            <textarea id="consola2" class="consola"></textarea>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+    <script>
+        var editorConsola1 = CodeMirror.fromTextArea(document.getElementById("consola1"), {
+            mode: "javascript",
+            lineNumbers: true,
+            theme: "material-darker"
+        });
+
+        var editorConsola2 = CodeMirror.fromTextArea(document.getElementById("consola2"), {
+            mode: "javascript",
+            lineNumbers: true,
+            theme: "material-darker",
+            readOnly: true
+        });
+    </script>
     <script src="./Script.js"></script>
 </body>
 </html>
+
 
 

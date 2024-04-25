@@ -1,0 +1,202 @@
+Gramatica
+
+<init> ::= <entrada> EOF ;
+
+<entrada> ::=
+    <entrada> <sentencia> 
+  | <sentencia>
+;
+
+<sentencia> ::=
+    <declaracion_functions>
+  | <declaracion_variable> PUNTOYCOMA
+  | <declaracion_array> PUNTOYCOMA
+  | <expresion> PUNTOYCOMA
+  | <sent_transf> PUNTOYCOMA
+  | <sent_if>
+  | <sent_switch>
+  | <sent_while>
+  | <sent_for>
+  | <sent_dowhile> PUNTOYCOMA
+  | <print> PUNTOYCOMA
+  | ID IGUAL <expresion> PUNTOYCOMA
+  | EXECUTE <llamada> PUNTOYCOMA
+  | error PUNTOYCOMA
+;
+
+<declaracion_variable> ::=
+    <tipo> <lista_ids>
+  | <tipo> <lista_ids> IGUAL <expresion>
+;
+
+<lista_ids> ::=
+    <lista_ids> COMA ID
+  | ID
+;
+
+<declaracion_array> ::=
+    <tipo> ID OPENCORCHETE CLOSECORCHETE IGUAL NEW <tipo> OPENCORCHETE <expresion> CLOSECORCHETE
+  | <tipo> ID OPENCORCHETE CLOSECORCHETE IGUAL <native_function>
+  | <tipo> ID OPENCORCHETE CLOSECORCHETE OPENCORCHETE CLOSECORCHETE IGUAL NEW <tipo> OPENCORCHETE <expresion> CLOSECORCHETE OPENCORCHETE <expresion> CLOSECORCHETE
+  | <tipo> ID OPENCORCHETE CLOSECORCHETE IGUAL OPENCORCHETE <lista_values> CLOSECORCHETE
+  | <tipo> ID OPENCORCHETE CLOSECORCHETE OPENCORCHETE CLOSECORCHETE IGUAL OPENCORCHETE OPENCORCHETE <lista_values> CLOSECORCHETE COMA OPENCORCHETE <lista_values> CLOSECORCHETE CLOSECORCHETE
+  | ID OPENCORCHETE <expresion> CLOSECORCHETE IGUAL <expresion>
+  | ID OPENCORCHETE <expresion> CLOSECORCHETE OPENCORCHETE <expresion> CLOSECORCHETE IGUAL <expresion>
+;
+
+<declaracion_functions> ::=
+    VOID ID OPENPAREN <parametros> CLOSEPAREN <bloque>
+  | VOID ID OPENPAREN CLOSEPAREN <bloque>
+  | <tipo> ID OPENPAREN <parametros> CLOSEPAREN <bloque>
+  | <tipo> ID OPENPAREN CLOSEPAREN <bloque>
+;
+
+<parametros> ::=
+    <parametros> COMA <comb_parametros>
+  | <comb_parametros>
+;
+
+<comb_parametros> ::=
+    <tipo> ID OPENCORCHETE CLOSECORCHETE
+  | <tipo> ID
+;
+
+<llamada> ::=
+    ID OPENPAREN <lista_expresion> CLOSEPAREN
+  | ID OPENPAREN CLOSEPAREN
+;
+
+<tipo> ::=
+    INT
+  | DOUBLE
+  | BOOL
+  | CHAR
+  | STD
+;
+
+<expresion> ::=
+    <expresion> SUMA <expresion>
+  | <expresion> RES <expresion>
+  | <expresion> MULT <expresion>
+  | <expresion> DIV <expresion>
+  | <expresion> MOD <expresion>
+  | POW OPENPAREN <expresion> COMA <expresion> CLOSEPAREN
+  | OPENPAREN <tipo> CLOSEPAREN <expresion>
+  | <actualizacion>
+  | <native_function>
+  | <op_relacional>
+  | <op_logicos>
+  | <llamada>
+  | <valor>
+;
+
+<lista_expresion> ::=
+    <lista_expresion> COMA <expresion>
+  | <expresion>
+;
+
+<op_relacional> ::=
+    <expresion> ORIGUAL <expresion>
+  | <expresion> ORDIF <expresion>
+  | <expresion> ORMENOR <expresion>
+  | <expresion> ORMENORIGUAL <expresion>
+  | <expresion> ORMAYOR <expresion>
+  | <expresion> ORMAYORIGUAL <expresion>
+  | <expresion> INCOGNITA <expresion> PUNTOS <expresion>
+;
+
+<op_logicos> ::=
+    <expresion> AND <expresion>
+  | <expresion> OR <expresion>
+  | NOT <expresion>
+;
+
+<print> ::=
+    COUT ASIGN <expresion>
+  | COUT ASIGN <expresion> ASIGN ENDL
+;
+
+<bloque> ::=
+    OPENLLAVE <entrada> CLOSELLAVE
+  | OPENLLAVE CLOSELLAVE
+;
+
+<sent_transf> ::=
+    BREAK
+  | CONTINUE
+  | RETURN
+  | RETURN <expresion>
+;
+
+<sent_if> ::=
+    IF OPENPAREN <expresion> CLOSEPAREN <bloque>
+  | IF OPENPAREN <expresion> CLOSEPAREN <bloque> ELSE <bloque>
+  | IF OPENPAREN <expresion> CLOSEPAREN <bloque> ELSE <sent_if>
+;
+
+<sent_switch> ::=
+    SWITCH OPENPAREN <expresion> CLOSEPAREN OPENLLAVE <cases_list> CLOSELLAVE
+  | SWITCH OPENPAREN <expresion> CLOSEPAREN OPENLLAVE <cases_list> <default_case> CLOSELLAVE
+;
+
+<cases_list> ::=
+    <cases_list> <case_statement>
+  | <case_statement>
+;
+
+<case_statement> ::=
+    CASE <expresion> PUNTOS <entrada>
+  | CASE <expresion> PUNTOS <entrada> BREAK
+;
+
+<default_case> ::=
+    DEFAULT PUNTOS <entrada>
+;
+
+<sent_while> ::=
+    WHILE OPENPAREN <expresion> CLOSEPAREN <bloque>
+;
+
+<sent_dowhile> ::=
+    DO <bloque> WHILE OPENPAREN <expresion> CLOSEPAREN
+;
+
+<sent_for> ::=
+    FOR OPENPAREN <declaracion_variable> PUNTOYCOMA <op_relacional> PUNTOYCOMA <actualizacion> CLOSEPAREN <bloque>
+;
+
+<actualizacion> ::=
+    ID INCREASE
+  | ID DECREASE
+;
+
+<native_function> ::=
+    TOLOWER OPENPAREN <expresion> CLOSEPAREN
+  | TOUPPER OPENPAREN <expresion> CLOSEPAREN
+  | ROUND OPENPAREN <expresion> CLOSEPAREN
+  | <valor> PUNTO LENGTH OPENPAREN CLOSEPAREN
+  | TYPEOF OPENPAREN <expresion> CLOSEPAREN
+  | STS OPENPAREN <expresion> CLOSEPAREN
+  | <valor> PUNTO CSTR OPENPAREN CLOSEPAREN
+;
+
+<valor> ::=
+    ENTERO
+  | DECIMAL
+  | CADENA
+  | CARACTER
+  | <booleano>
+  | ID
+  | ID OPENCORCHETE <expresion> CLOSECORCHETE
+  | ID OPENCORCHETE <expresion> CLOSECORCHETE OPENCORCHETE <expresion> CLOSECORCHETE
+;
+
+<lista_values> ::=
+    <lista_values> COMA <valor>
+  | <valor>
+;
+
+<booleano> ::=
+    TRUE
+  | FALSE
+;

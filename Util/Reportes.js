@@ -1,8 +1,14 @@
 const fs = require('fs'); 
+const path = require('path');
 
 class Reportes {
     constructor(){
         this.errores = [];
+        const dirPath = path.join(__dirname, '../public');
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+            console.log('Directorio creado:', dirPath);
+        }
     }
 
     agregarError(error){
@@ -64,7 +70,8 @@ class Reportes {
             </html>
         `;
 
-        fs.writeFileSync('reporteDeErrores.html', html); 
+        const filePath = path.join(__dirname, '../public/reporteDeErrores.html');
+        fs.writeFileSync(filePath, html);
     }
 
     generarTablaSimbolos(){
@@ -122,7 +129,8 @@ class Reportes {
         </html>
     `;
 
-    fs.writeFileSync('reporteDeSimbolos.html', html); 
+    const filePath = path.join(__dirname, '../public/reporteDeSimbolos.html');
+    fs.writeFileSync(filePath, html);
     }
 
     generarReporteAST(instrucciones) {

@@ -1,11 +1,10 @@
 EXECUTE main();
 
-int var1 = 0;
+void main(){
+  int var1 = 0;
 
 int arreglo1[] = new int[5];
 int arreglo2[] = [0,0,1,2,0,0,5,1,0,0,8,0,0];
-
-void main(){
     cout << "Archivo de prueba\n";
     cout << "Si sale compi1" << endl;
 
@@ -24,7 +23,7 @@ void main(){
    recursividadBasica();
 
    // arreglos
-    AnalizarArreglo(arreglo1);
+    AnalizarArreglo(arreglo2);
 
     cout << "Fin de la prueba" << endl;
 
@@ -47,7 +46,7 @@ int mcd(int a, int b){
     if(b==0){
         return a;
     }else{
-        return mdc(b, a%b);
+        return mcd(b, a%b);
     }
 }
 

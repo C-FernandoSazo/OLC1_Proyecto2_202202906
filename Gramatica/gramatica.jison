@@ -93,15 +93,7 @@
 <string>"\\r"           { cadena += "\r"; }
 <string>["]             { yytext = cadena; this.popState(); console.log('Token: CADENA, Valor: ' + yytext); return 'CADENA'; }
 
-[']                            { this.begin("character"); }
-<character>\\x[0-9a-fA-F]{2}   { return 'CARACTER';}
-<character>"\\n"               { return 'CARACTER'; }
-<character>"\\t"               { return 'CARACTER'; }
-<character>"\\r"               { return 'CARACTER'; }
-<character>[^\\\']             { return 'CARACTER'; }
-<character>\\\"                { return 'CARACTER'; }
-<character>\\\'                { return 'CARACTER'; } 
-<character>\'                  { this.popState(); }
+[']\\\\[']|[']\\\"[']|[']\\\'[']|[']\\n[']|[']\\t[']|[']\\r[']|['].?[']	        { yytext=yytext.substr(1, yyleng-2); return 'CARACTER' }
 
 <<EOF>>                 return 'EOF';
 
@@ -363,6 +355,7 @@ expresion : expresion SUMA expresion        { $$ = nuevaOpBinaria($1, $3, 'SUMA'
             | expresion MULT expresion      { $$ = nuevaOpBinaria($1, $3, 'MULT', this._$.first_line, this._$.first_column+1) }
             | expresion DIV expresion       { $$ = nuevaOpBinaria($1, $3, 'DIV', this._$.first_line, this._$.first_column+1) }
             | expresion MOD expresion       { $$ = nuevaOpBinaria($1, $3, 'MOD', this._$.first_line, this._$.first_column+1) }
+            | RES expresion %prec umenos                { $$ = nuevaOpBinaria($1, null, 'NEGATIVO', this._$.first_line, this._$.first_column+1)}
             | POW OPENPAREN expresion COMA expresion CLOSEPAREN     { $$ = nuevaOpBinaria($1, $3, 'POW', this._$.first_line, this._$.first_column+1) }
             | OPENPAREN tipo CLOSEPAREN expresion  { $$ = nuevaOpUnit($4, 'CASTEO', this._$.first_line, this._$.first_column+1, $2) }
             | actualizacion     { $$ = $1; }

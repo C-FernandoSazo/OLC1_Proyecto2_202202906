@@ -3,7 +3,7 @@ const e = require("express");
 function Expresion(expresion,consola=null,pasada=false)   {
     const tablaS = global.tablaSimbolos;
     const tiposValores = ['DOUBLE', 'ENTERO', 'CADENA', 'BOOL', 'CHAR', 'ID', 'ARRAY']
-    const operacionesAritmeticas = ['SUMA', 'RESTA', 'MULT', 'DIV', 'POW', 'MOD'];
+    const operacionesAritmeticas = ['SUMA', 'RESTA', 'MULT', 'DIV', 'POW', 'MOD', 'NEGATIVO'];
     const operacionesRelacionales = ['IGUALACION', 'DIF', 'MENORQUE', 'MENORIGUALQUE', 'MAYORQUE', 'MAYORIGUALQUE'];
     const operacionesLogicas = ['AND', 'OR', 'NOT']
 
